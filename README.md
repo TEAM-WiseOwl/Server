@@ -34,7 +34,7 @@
 
 #### 4. github 사이트 와서 pull & request 생성하기 (dev <- feat/이슈번호)
 
-#### 5. 팀장 코드 피드백 완료 후 본인이 merge 하기
+#### (보류) 5. 팀장 코드 피드백 완료 후 본인이 merge 하기
 
 #### 6. merge 후 본인 로컬 dev 브랜치에 git pull origin dev로 최신화 하기
 
