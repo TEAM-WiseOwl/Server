@@ -43,6 +43,12 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "whitenoise.runserver_nostatic",
+
+    "accounts",
+    "notices",
+    "requirements",
+    "products",
+    "payments",
 ]
 
 MIDDLEWARE = [
