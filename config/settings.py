@@ -82,14 +82,17 @@ WSGI_APPLICATION = "config.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    "default": dj_database_url.config(default=f'sqlite:///{BASE_DIR / "db.sqlite3"}'),
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
 }
-db_from_env = dj_database_url.config(conn_max_age = 500)
+# db_from_env = dj_database_url.config(conn_max_age = 500)
 
-DATABASES['default'].update(db_from_env)
+# DATABASES['default'].update(db_from_env)
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage' #?
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage' #?
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
