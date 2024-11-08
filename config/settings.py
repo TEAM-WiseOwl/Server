@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "requirements",
     "products",
     "payments",
+    "facilities",
 ]
 
 MIDDLEWARE = [
