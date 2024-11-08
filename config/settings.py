@@ -1,6 +1,6 @@
 from pathlib import Path
 import os, json
-import local_settings as local_settings 
+import local_settings 
 
 
 # import dj_database_url
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "requirements",
     "products",
     "payments",
+    "facilities",
 ]
 
 MIDDLEWARE = [
