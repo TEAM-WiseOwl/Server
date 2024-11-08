@@ -11,6 +11,7 @@ db.sqlite3
 db.sqlite3-journal
 media
 secrets.json
+venv_mary/
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
 # in your Git repository. Update and uncomment the following line accordingly.
@@ -139,7 +140,14 @@ env/
 venv/
 ENV/
 env.bak/
-venv.bak/
+
+venv_mary.bak/
+.venv_mary
+env/
+venv_mary/
+ENV/
+env.bak/
+venv_mary.bak/
 
 # Spyder project settings
 .spyderproject
