@@ -1,15 +1,16 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-
+from django.conf import settings
+from requirements.models import Department
 # Create your models here.
 
 class Organ(models.Model):
-    organ_id = models.AutoField(verbose_name="기관 아이디", null=False)
+    organ_id = models.BigAutoField(verbose_name="기관 아이디", null=False)
     organ_name=models.CharField(verbose_name="기관명")
     organ_link=models.URLField(verbose_name="기관 페이지 url", max_length=200)
 
 class Notice(models.Model):
-    notice_id = models.AutoField(verbose_name="알림 고유번호",null=False, primary_key=True)
+    notice_id = models.BigAutoField(verbose_name="알림 고유번호",null=False, primary_key=True)
     notice_organ_id = models.ForeignKey(Organ, on_delete=models.CASCADE,null=True)
     notice_department_id = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='department_id', null=True)
     user_id=models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
