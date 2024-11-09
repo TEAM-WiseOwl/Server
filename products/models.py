@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model 
 from facilities.models import Facility
-from accounts.models import User
+from django.conf import settings
 
 class ProductCategory(models.Model):
     product_category_id = models.BigAutoField(verbose_name='상품 카테고리 아이디',primary_key = True)
