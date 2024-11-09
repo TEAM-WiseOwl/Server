@@ -5,11 +5,13 @@ class College(models.Model):
     college_id=models.BigAutoField(verbose_name="단과대 아이디", primary_key=True)
     college_name=models.CharField(verbose_name="단과대명", max_length=30)
     college_required_credit=models.IntegerField(verbose_name="졸업이수학점")
+
 class Department(models.Model):
     department_id=models.BigAutoField(verbose_name="학과 아이디", primary_key=True)
     college=models.ForeignKey(College, on_delete=models.CASCADE)
     department_name=models.CharField(verbose_name="학과 이름", max_length=50)
     department_url=models.URLField(verbose_name="학과페이지 url", max_length=200)
+
 class Requirement(models.Model):
     department = models.ForeignKey(Department, on_delete=models.CASCADE, primary_key=True)
     graduation_thesis=models.BooleanField(verbose_name="졸논 필요 여부", default = False)
@@ -83,6 +85,7 @@ class GeneralSubjectCompleted(models.Model):
     retry_yn=models.BooleanField(verbose_name="재수강 여부", default = False)
     school_year=models.IntegerField(verbose_name="학년/학기")
     completed_year=models.CharField(verbose_name="수강년도", max_length=5)
+
     class Meta:
         unique_together = ('user_id', 'subject_gened_id')  # Django 2.2 이전 버전에서 사용 가능
         # Django 2.2 이상 버전에서는 아래와 같이 UniqueConstraint를 사용할 수도 있음
@@ -97,12 +100,14 @@ class MajorSubjectCompleted(models.Model):
     retry_yn=models.BooleanField(verbose_name="재수강 여부", default = False)
     school_year=models.IntegerField(verbose_name="학년/학기")
     completed_year=models.CharField(verbose_name="수강년도", max_length=5)
+    
     class Meta:
         unique_together = ('user_id', 'subject_department_id')  # Django 2.2 이전 버전에서 사용 가능
         # Django 2.2 이상 버전에서는 아래와 같이 UniqueConstraint를 사용할 수도 있음
         # constraints = [
         #     models.UniqueConstraint(fields=['subject_gened_id', 'department_id'], name='subject_gened_id_department_id')
         # ] 
+
 class ForeignTestRequired(models.Model):
     test_id=models.BigAutoField(verbose_name="시험 아이디", primary_key=True)
     department=models.ForeignKey(Department, on_delete=models.CASCADE, null=False)
