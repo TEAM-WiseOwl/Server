@@ -10,7 +10,7 @@ class Organ(models.Model):
     organ_link=models.URLField(verbose_name="기관 페이지 url", max_length=200)
 
 class Notice(models.Model):
-    notice = models.BigAutoField(verbose_name="알림 고유번호",null=False, primary_key=True)
+    notice_id = models.BigAutoField(verbose_name="알림 고유번호",null=False, primary_key=True)
     notice_organ = models.ForeignKey(Organ, on_delete=models.CASCADE,null=True)
     notice_department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='department_id', null=True)
     user=models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

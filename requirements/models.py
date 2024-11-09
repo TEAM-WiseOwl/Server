@@ -47,7 +47,7 @@ class SubjectGenedRequired(models.Model):
     subject_gened_required_sn=models.IntegerField(verbose_name="학번(이상)")
 
     class Meta:
-        unique_together = ('subject_gened_id', 'department_id')  # Django 2.2 이전 버전에서 사용 가능
+        unique_together = ('subject_gened', 'department')  # Django 2.2 이전 버전에서 사용 가능
         # Django 2.2 이상 버전에서는 아래와 같이 UniqueConstraint를 사용할 수도 있음
         # constraints = [
         #     models.UniqueConstraint(fields=['subject_gened_id', 'department_id'], name='subject_gened_id_department_id')
@@ -71,7 +71,7 @@ class SubjectDepartmentRequired(models.Model):
     subject_gened_required_sn=models.IntegerField(verbose_name="학번(이상)")
 
     class Meta:
-        unique_together = ('subject_requirement_id', 'department_id')  # Django 2.2 이전 버전에서 사용 가능
+        unique_together = ('subject_requirement', 'department')  # Django 2.2 이전 버전에서 사용 가능
         # Django 2.2 이상 버전에서는 아래와 같이 UniqueConstraint를 사용할 수도 있음
         # constraints = [
         #     models.UniqueConstraint(fields=['subject_gened_id', 'department_id'], name='subject_gened_id_department_id')
@@ -87,7 +87,7 @@ class GeneralSubjectCompleted(models.Model):
     completed_year=models.CharField(verbose_name="수강년도", max_length=5)
 
     class Meta:
-        unique_together = ('user_id', 'subject_gened_id')  # Django 2.2 이전 버전에서 사용 가능
+        unique_together = ('user', 'subject_gened')  # Django 2.2 이전 버전에서 사용 가능
         # Django 2.2 이상 버전에서는 아래와 같이 UniqueConstraint를 사용할 수도 있음
         # constraints = [
         #     models.UniqueConstraint(fields=['subject_gened_id', 'department_id'], name='subject_gened_id_department_id')
@@ -100,9 +100,9 @@ class MajorSubjectCompleted(models.Model):
     retry_yn=models.BooleanField(verbose_name="재수강 여부", default = False)
     school_year=models.IntegerField(verbose_name="학년/학기")
     completed_year=models.CharField(verbose_name="수강년도", max_length=5)
-    
+
     class Meta:
-        unique_together = ('user_id', 'subject_department_id')  # Django 2.2 이전 버전에서 사용 가능
+        unique_together = ('user', 'subject_department')  # Django 2.2 이전 버전에서 사용 가능
         # Django 2.2 이상 버전에서는 아래와 같이 UniqueConstraint를 사용할 수도 있음
         # constraints = [
         #     models.UniqueConstraint(fields=['subject_gened_id', 'department_id'], name='subject_gened_id_department_id')
