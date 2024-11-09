@@ -9,7 +9,7 @@ urlpatterns = [
     #path("api/requirements/", include('requirements.urls', namespace='requirements')),
     #path("api/products/", include('products.urls', namespace='products')),
     #path("api/payments/", include('payments.urls', namespace='payments')),
-    # path("api/facilitis/", include('facilities.urls',namespace='facilities'))
+    path("api/", include('facilities.urls',namespace='facilities'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:

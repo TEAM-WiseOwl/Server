@@ -18,7 +18,7 @@ class Product(models.Model):
 
 class Cart(models.Model):
     cart_id = models.BigAutoField(verbose_name = '장바구니 아이디', primary_key = True)
-    user = models.ForeignKey(User,on_delete = models.
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete = models.
     CASCADE, null = False)
     cart_price = models.PositiveIntegerField(verbose_name = '장바구니 총 금액')
 
