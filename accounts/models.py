@@ -2,6 +2,8 @@ from django.db import models
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
+from config import settings
+from requirements.models import College, Department
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password, **extra_fields):
@@ -66,3 +68,9 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - Profile"
+    
+class RequestStuNumber(models.Model):
+    request_id = models.BigAutoField(primary_key=True)
+    request_number = models.CharField(max_length=10)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='request_user_id')
+    department = models.ForeignKey(Department, verbose_name= '학과 아이디', on_delete=models.CASCADE, related_name='request_department_id')
