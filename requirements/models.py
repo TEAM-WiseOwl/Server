@@ -13,14 +13,14 @@ class Department(models.Model):
     department_url=models.URLField(verbose_name="학과페이지 url", max_length=200)
 
 class Requirement(models.Model):
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, primary_key=True)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
     graduation_thesis=models.BooleanField(verbose_name="졸논 필요 여부", default = False)
     graduation_exam=models.BooleanField(verbose_name="졸업시험 필요 여부", default = False)
     graduation_project=models.BooleanField(verbose_name="졸플 필요 여부", default = False)
     graduation_qualifications=models.BooleanField(verbose_name="자격증 필요 여부", default = False)
     graduation_subjects=models.BooleanField(verbose_name="졸업 필요 여부", default = False)
 
-class OpeningSemester(models.required):
+class OpeningSemester(models.Model):
     opening_semester_id=models.BigAutoField(verbose_name="개설학기 아이디", primary_key=True)
     subject_year=models.CharField(verbose_name="개설년도", max_length=7)
     subject_semester=models.CharField(verbose_name="개설학기", max_length=7)
@@ -80,7 +80,7 @@ class SubjectDepartmentRequired(models.Model):
 
 class GeneralSubjectCompleted(models.Model):
     user=models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    subject_gened=models.ForeignKey(SubjectGened, on_delete=models.CASCADE, null=False)
+    subject_gened=models.ForeignKey(SubjectGened, on_delete=models.CASCADE)
     grade=models.CharField(verbose_name="성적", max_length=5)
     retry_yn=models.BooleanField(verbose_name="재수강 여부", default = False)
     school_year=models.IntegerField(verbose_name="학년/학기")
@@ -95,7 +95,7 @@ class GeneralSubjectCompleted(models.Model):
 
 class MajorSubjectCompleted(models.Model):
     user=models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    subject_department=models.ForeignKey(SubjectDepartment, on_delete=models.CASCADE, null=False)
+    subject_department=models.ForeignKey(SubjectDepartment, on_delete=models.CASCADE)
     grade=models.CharField(verbose_name="성적", max_length=5)
     retry_yn=models.BooleanField(verbose_name="재수강 여부", default = False)
     school_year=models.IntegerField(verbose_name="학년/학기")
@@ -110,7 +110,7 @@ class MajorSubjectCompleted(models.Model):
 
 class ForeignTestRequired(models.Model):
     test_id=models.BigAutoField(verbose_name="시험 아이디", primary_key=True)
-    department=models.ForeignKey(Department, on_delete=models.CASCADE, null=False)
+    department=models.ForeignKey(Department, on_delete=models.CASCADE)
     test_name=models.CharField(verbose_name="시험명", max_length=15)
     test_basic_score=models.IntegerField(verbose_name="요건 통과 기준 점수")
 
