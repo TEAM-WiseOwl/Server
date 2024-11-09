@@ -5,8 +5,8 @@ from requirements.models import Department
 # Create your models here.
 
 class Organ(models.Model):
-    organ_id = models.BigAutoField(verbose_name="기관 아이디", null=False)
-    organ_name=models.CharField(verbose_name="기관명")
+    organ_id = models.BigAutoField(verbose_name="기관 아이디", primary_key=True)
+    organ_name=models.CharField(verbose_name="기관명", max_length=50)
     organ_link=models.URLField(verbose_name="기관 페이지 url", max_length=200)
 
 class Notice(models.Model):
