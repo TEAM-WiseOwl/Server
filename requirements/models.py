@@ -20,7 +20,7 @@ class Requirement(models.Model):
     graduation_qualifications=models.BooleanField(verbose_name="자격증 필요 여부", default = False)
     graduation_subjects=models.BooleanField(verbose_name="졸업 필요 여부", default = False)
     graduation_gubun=models.CharField(verbose_name="이중전공,부전공,전공심화", max_length=20)
-    description=models.CharField(verbose_name="기타사항(예를 들면 시험 대체가능)", max_length=100)
+    description=models.CharField(verbose_name="기타사항(예를 들면 시험 대체가능)", max_length=100, null=True)
 class OpeningSemester(models.Model):
     opening_semester_id=models.BigAutoField(verbose_name="개설학기 아이디", primary_key=True)
     subject_year=models.CharField(verbose_name="개설년도", max_length=7)
@@ -128,4 +128,4 @@ class ExtraForeignTest(models.Model):
     extra_test_name=models.CharField(verbose_name="기타시험 이름", max_length=30)
     extra_test_basic_score=models.CharField(verbose_name="기준", max_length=20, null=True)
     extra_test_gubun=models.CharField(verbose_name="졸시/자격증", max_length=20)
-    description=models.CharField(verbose_name="추가정보/예를 들면 이중만 조건 다른 경우", max_length="200")
+    description=models.CharField(verbose_name="추가정보/예를 들면 이중만 조건 다른 경우", max_length="200", null=True)
