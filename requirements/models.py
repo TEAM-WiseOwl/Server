@@ -128,3 +128,4 @@ class ExtraForeignTest(models.Model):
     extra_test_name=models.CharField(verbose_name="기타시험 이름", max_length=30)
     extra_test_basic_score=models.CharField(verbose_name="기준", max_length=20, null=True)
     extra_test_gubun=models.CharField(verbose_name="졸시/자격증", max_length=20)
+    description=models.CharField(verbose_name="추가정보/예를 들면 이중만 조건 다른 경우", max_length="200")
