@@ -19,8 +19,8 @@ class Requirement(models.Model):
     graduation_project=models.BooleanField(verbose_name="졸플 필요 여부", default = False)
     graduation_qualifications=models.BooleanField(verbose_name="자격증 필요 여부", default = False)
     graduation_subjects=models.BooleanField(verbose_name="졸업 필요 여부", default = False)
-    graduation_gubun=models.CharField(verbose_name="이중전공,부전공,전공심화", max_length=20)
-    description=models.CharField(verbose_name="기타사항(예를 들면 시험 대체가능)", max_length=100, null=True)
+    graduation_gubun=models.CharField(verbose_name="이중전공,부전공,전공심화", max_length=20, null=True)
+    description=models.CharField(verbose_name="기타사항(예를 들면 시험 대체가능)", max_length=500, null=True)
 class OpeningSemester(models.Model):
     opening_semester_id=models.BigAutoField(verbose_name="개설학기 아이디", primary_key=True)
     subject_year=models.CharField(verbose_name="개설년도", max_length=7)
@@ -37,7 +37,7 @@ class SubjectGened(models.Model):
     subject_gened_name=models.CharField(verbose_name="교양 과목명", max_length=50)
     subject_gened_credit=models.IntegerField(verbose_name="교양과목 학점")
     subject_gened_professor=models.CharField(verbose_name="교수명", max_length=30)
-    subject_gened_room_date=models.CharField(verbose_name="강의시간/강의실", max_length=50)
+    subject_gened_room_date=models.CharField(verbose_name="강의시간/강의실", max_length=50, null=True)
     opening_semester=models.ForeignKey(OpeningSemester, on_delete=models.CASCADE, null=False)
 
 class SubjectGenedRequired(models.Model):
@@ -60,7 +60,7 @@ class SubjectDepartment(models.Model):
     subject_department_name=models.CharField(verbose_name="전공 과목명", max_length=50)
     subject_department_credit=models.IntegerField(verbose_name="전공과목 학점")
     subject_department_professor=models.CharField(verbose_name="교수명", max_length=30)
-    subject_department_room_date=models.CharField(verbose_name="강의시간/강의실", max_length=50)
+    subject_department_room_date=models.CharField(verbose_name="강의시간/강의실", max_length=50, null=True)
     opening_semester=models.ForeignKey(OpeningSemester, on_delete=models.CASCADE, null=False)
 
 class SubjectDepartmentRequired(models.Model):
