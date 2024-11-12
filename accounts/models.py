@@ -53,7 +53,7 @@ class Profile(models.Model):
     double_or_minor = models.ForeignKey(Department, verbose_name='이중/부전공 학과', on_delete=models.CASCADE, related_name='double_minor')
     profile_name = models.CharField(max_length=20, unique=True)
     profile_student_number = models.PositiveIntegerField(verbose_name='학번')
-    profile_gubun = models.CharField(max_length=20, verbose_name="이중전공, 부전공, 전공심화, 전공심화+부전공")
+    profile_gubun = models.CharField(max_length=20)
     profile_agreement = models.BooleanField(default=False)
     profile_img = models.ImageField(upload_to="profiles/%Y/%m/%d/", blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
