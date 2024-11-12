@@ -140,6 +140,7 @@ class ExtraForeignTest(models.Model):
 class ExceptionDepartmentSubject(models.Model):
     subject_department_required = models.ForeignKey(SubjectDepartmentRequired, on_delete=models.CASCADE)
     comparison_code = models.CharField(verbose_name="대체 과목코드", max_length=50)
+    comparison_name = models.CharField(verbose_name="대체 과목명", max_length=20)
     code_match = models.BooleanField(verbose_name="코드값 일치", default = False)
     name_match = models.BooleanField(verbose_name="과목명 일치", default=False)
     class Meta:
@@ -148,6 +149,7 @@ class ExceptionDepartmentSubject(models.Model):
 class ExceptionGenedSubject(models.Model):
     subject_gened_required = models.ForeignKey(SubjectGenedRequired, on_delete=models.CASCADE)
     comparison_code = models.CharField(verbose_name="대체 과목코드", max_length=50)
+    comparison_name = models.CharField(verbose_name="대체 과목명", max_length=20)
     code_match = models.BooleanField(verbose_name="코드값 일치", default = False)
     name_match = models.BooleanField(verbose_name="과목명 일치", default=False)
     class Meta:
