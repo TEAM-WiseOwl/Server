@@ -111,7 +111,7 @@ class ForeignTestRequired(models.Model):
     test_id=models.BigAutoField(verbose_name="시험 아이디", primary_key=True)
     department=models.ForeignKey(Department, on_delete=models.CASCADE)
     test_name=models.CharField(verbose_name="시험명", max_length=15)
-    test_basic_score=models.CharField(verbose_name="요건 통과 기준 점수", max_length=20)
+    test_basic_score=models.CharField(verbose_name="요건 통과 기준 점수", max_length=20, null=True)
 
 class RequiredCredit(models.Model):
     required_credit_id=models.BigAutoField(verbose_name="졸업이수학점 아이디", primary_key=True)
