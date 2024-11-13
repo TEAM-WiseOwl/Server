@@ -35,9 +35,9 @@ class SubjectGened(models.Model):
     subject_gened_id = models.BigAutoField(verbose_name="교양과목 아이디", primary_key=True)
     gened_category = models.ForeignKey(GenedCategory, on_delete=models.CASCADE, null=False)
     subject_gened_code=models.CharField(verbose_name="교양 과목코드", max_length=50)
-    subject_gened_name=models.CharField(verbose_name="교양 과목명", max_length=50)
+    subject_gened_name=models.CharField(verbose_name="교양 과목명", max_length=150)
     subject_gened_credit=models.IntegerField(verbose_name="교양과목 학점")
-    subject_gened_professor=models.CharField(verbose_name="교수명", max_length=30)
+    subject_gened_professor=models.CharField(verbose_name="교수명", max_length=100)
     subject_gened_room_date=models.CharField(verbose_name="강의시간/강의실", max_length=50, null=True)
     opening_semester=models.ForeignKey(OpeningSemester, on_delete=models.CASCADE, null=False)
 
@@ -47,7 +47,7 @@ class SubjectGenedRequired(models.Model):
     department= models.ForeignKey(Department, on_delete=models.CASCADE)
     subject_gened_required_db=models.BooleanField(verbose_name="이중전공 여부", default = False)
     subject_gened_required_sn=models.CharField(verbose_name="학번(이상)", max_length=30)
-    subject_gened_required_name = models.CharField(verbose_name="교양필수 과목명", max_length = 20, null = True)
+    subject_gened_required_name = models.CharField(verbose_name="교양필수 과목명", max_length = 150, null = True)
     subject_gened_required_desc = models.CharField(verbose_name = "설명", max_length = 500 , null = True)
     subject_gened_required_instead = models.BooleanField(verbose_name="대체 가능 여부", default = False)
 
@@ -62,9 +62,9 @@ class SubjectDepartment(models.Model):
     subject_department_id=models.BigAutoField(verbose_name="전공과목 아이디", primary_key=True)
     department=models.ForeignKey(Department, on_delete=models.CASCADE)
     subject_department_code=models.CharField(verbose_name="전공 과목코드", max_length=50)
-    subject_department_name=models.CharField(verbose_name="전공 과목명", max_length=50)
+    subject_department_name=models.CharField(verbose_name="전공 과목명", max_length=150)
     subject_department_credit=models.IntegerField(verbose_name="전공과목 학점")
-    subject_department_professor=models.CharField(verbose_name="교수명", max_length=30)
+    subject_department_professor=models.CharField(verbose_name="교수명", max_length=100)
     subject_department_room_date=models.CharField(verbose_name="강의시간/강의실", max_length=50, null=True)
     opening_semester=models.ForeignKey(OpeningSemester, on_delete=models.CASCADE, null=False)
 
@@ -75,7 +75,7 @@ class SubjectDepartmentRequired(models.Model):
     subject_department_required_1=models.BooleanField(verbose_name="본전공만만 해당 여부", default = False)
     subject_department_required_2=models.BooleanField(verbose_name="이중전공만 해당 여부", default = False)
     subject_department_required_sn=models.CharField(verbose_name="학번(이상)", max_length=30)
-    subject_department_required_name = models.CharField(verbose_name="전공필수 과목명", max_length = 20, null=True)
+    subject_department_required_name = models.CharField(verbose_name="전공필수 과목명", max_length = 150, null=True)
     subject_department_required_desc = models.CharField(verbose_name = "설명", max_length = 500, null = True)
     subject_department_required_instead = models.BooleanField(verbose_name="대체 가능 여부", default = False)
 
@@ -137,7 +137,7 @@ class ExtraForeignTest(models.Model):
 class ExceptionDepartmentSubject(models.Model):
     subject_department_required = models.ForeignKey(SubjectDepartmentRequired, on_delete=models.CASCADE)
     comparison_code = models.CharField(verbose_name="대체 과목코드", max_length=50)
-    comparison_name = models.CharField(verbose_name="대체 과목명", max_length=20)
+    comparison_name = models.CharField(verbose_name="대체 과목명", max_length=150)
     code_match = models.BooleanField(verbose_name="코드값 일치", default = False)
     name_match = models.BooleanField(verbose_name="과목명 일치", default=False)
 
@@ -147,7 +147,7 @@ class ExceptionDepartmentSubject(models.Model):
 class ExceptionGenedSubject(models.Model):
     subject_gened_required = models.ForeignKey(SubjectGenedRequired, on_delete=models.CASCADE)
     comparison_code = models.CharField(verbose_name="대체 과목코드", max_length=50)
-    comparison_name = models.CharField(verbose_name="대체 과목명", max_length=20)
+    comparison_name = models.CharField(verbose_name="대체 과목명", max_length=150)
     code_match = models.BooleanField(verbose_name="코드값 일치", default = False)
     name_match = models.BooleanField(verbose_name="과목명 일치", default=False)
 
