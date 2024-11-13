@@ -42,16 +42,16 @@ class SubjectGened(models.Model):
     opening_semester=models.ForeignKey(OpeningSemester, on_delete=models.CASCADE, null=False)
 
 class SubjectGenedRequired(models.Model):
-    subject_gened_required_code=models.CharField(verbose_name="교양 필수 과목코드", max_length=50)
+    subject_gened_required_code=models.CharField(verbose_name="교양 필수 과목코드", max_length=50, null=True)
     department= models.ForeignKey(Department, on_delete=models.CASCADE)
     subject_gened_required_db=models.BooleanField(verbose_name="이중전공 여부", default = False)
     subject_gened_required_sn=models.CharField(verbose_name="학번(이상)", max_length=30)
-    subject_gened_required_name = models.CharField(verbose_name="교양필수 과목명", max_length = 20)
-    subject_gened_required_desc = models.CharField(verbose_name = "설명", max_length = 500)
+    subject_gened_required_name = models.CharField(verbose_name="교양필수 과목명", max_length = 20, null = True)
+    subject_gened_required_desc = models.CharField(verbose_name = "설명", max_length = 500 , null = True)
     subject_gened_required_instead = models.BooleanField(verbose_name="대체 가능 여부", default = False)
 
     class Meta:
-        unique_together = ('subject_gened', 'department')  # Django 2.2 이전 버전에서 사용 가능
+        unique_together = ('subject_gened_required_code', 'department')  # Django 2.2 이전 버전에서 사용 가능
         # Django 2.2 이상 버전에서는 아래와 같이 UniqueConstraint를 사용할 수도 있음
         # constraints = [
         #     models.UniqueConstraint(fields=['subject_gened_id', 'department_id'], name='subject_gened_id_department_id')
@@ -68,12 +68,12 @@ class SubjectDepartment(models.Model):
     opening_semester=models.ForeignKey(OpeningSemester, on_delete=models.CASCADE, null=False)
 
 class SubjectDepartmentRequired(models.Model):
-    subject_department_required_code=models.CharField( verbose_name="전공 필수 과목코드", max_length=50)
+    subject_department_required_code=models.CharField( verbose_name="전공 필수 과목코드", max_length=50, null = True)
     department=models.ForeignKey(Department, on_delete=models.CASCADE)
     subject_department_required_db=models.BooleanField(verbose_name="본전공만 해당 여부", default = False)
     subject_department_required_sn=models.CharField(verbose_name="학번(이상)", max_length=30)
-    subject_department_required_name = models.CharField(verbose_name="전공필수 과목명", max_length = 20)
-    subject_department_required_desc = models.CharField(verbose_name = "설명", max_length = 500)
+    subject_department_required_name = models.CharField(verbose_name="전공필수 과목명", max_length = 20, null=True)
+    subject_department_required_desc = models.CharField(verbose_name = "설명", max_length = 500, null = True)
     subject_department_required_instead = models.BooleanField(verbose_name="대체 가능 여부", default = False)
 
     class Meta:
