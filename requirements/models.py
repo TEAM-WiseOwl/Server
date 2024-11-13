@@ -37,7 +37,7 @@ class SubjectGened(models.Model):
     subject_gened_code=models.CharField(verbose_name="교양 과목코드", max_length=50)
     subject_gened_name=models.CharField(verbose_name="교양 과목명", max_length=150)
     subject_gened_credit=models.IntegerField(verbose_name="교양과목 학점")
-    subject_gened_professor=models.CharField(verbose_name="교수명", max_length=30)
+    subject_gened_professor=models.CharField(verbose_name="교수명", max_length=100)
     subject_gened_room_date=models.CharField(verbose_name="강의시간/강의실", max_length=50, null=True)
     opening_semester=models.ForeignKey(OpeningSemester, on_delete=models.CASCADE, null=False)
 
@@ -64,7 +64,7 @@ class SubjectDepartment(models.Model):
     subject_department_code=models.CharField(verbose_name="전공 과목코드", max_length=50)
     subject_department_name=models.CharField(verbose_name="전공 과목명", max_length=150)
     subject_department_credit=models.IntegerField(verbose_name="전공과목 학점")
-    subject_department_professor=models.CharField(verbose_name="교수명", max_length=30)
+    subject_department_professor=models.CharField(verbose_name="교수명", max_length=100)
     subject_department_room_date=models.CharField(verbose_name="강의시간/강의실", max_length=50, null=True)
     opening_semester=models.ForeignKey(OpeningSemester, on_delete=models.CASCADE, null=False)
 
