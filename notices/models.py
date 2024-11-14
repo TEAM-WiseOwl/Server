@@ -23,6 +23,9 @@ class Subscribe(models.Model):
     user=models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     subscribe_major=models.BooleanField(verbose_name="본전공 구독 여부", default = False)
     subscribe_double=models.BooleanField(verbose_name="이중전공 구독 여부", default = False)
-    subscribe_ai=models.BooleanField(verbose_name="ai 교육원 구독 여부", default = False)
-    subscribe_foreign=models.BooleanField(verbose_name="국제교류원 교육원 구독 여부", default = False)
-    
+    subscribe_ai=models.BooleanField(verbose_name="AI 교육원 구독 여부", default = False)
+    subscribe_foreign=models.BooleanField(verbose_name="국제교류팀 교육원 구독 여부", default = False)
+    subscribe_cfl=models.BooleanField(verbose_name="진로취업지원센터", default=False)
+    subscribe_special_foreign=models.BooleanField(verbose_name="특수외국어교육진흥원", default=False)
+    subscribe_flex=models.BooleanField(verbose_name="FLEX 센터", default=False)
+    subscribe_foreign_edu=models.BooleanField(verbose_name="외국어교육센터", default=False)
