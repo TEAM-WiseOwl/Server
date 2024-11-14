@@ -154,5 +154,4 @@ class ExceptionGenedSubject(models.Model):
     department = models.ForeignKey(Department, on_delete=models.CASCADE, default=0)
 
     class Meta:
-        unique_together = ('subject_gened_required_code', 'comparison_code')
-
+        unique_together = ('subject_gened_required_code', 'comparison_code', 'department')
