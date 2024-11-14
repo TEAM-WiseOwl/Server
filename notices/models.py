@@ -27,5 +27,5 @@ class Subscribe(models.Model):
     subscribe_foreign=models.BooleanField(verbose_name="국제교류팀 교육원 구독 여부", default = False)
     subscribe_cfl=models.BooleanField(verbose_name="진로취업지원센터", default=False)
     subscribe_special_foreign=models.BooleanField(verbose_name="특수외국어교육진흥원", default=False)
-    subscribe_flex=models.BooleanField(verbose_name="FLEX 센터")
-    subscribe_foreign_edu=models.BooleanField(verbose_name="외국어교육센터")
+    subscribe_flex=models.BooleanField(verbose_name="FLEX 센터", default=False)
+    subscribe_foreign_edu=models.BooleanField(verbose_name="외국어교육센터", default=False)
