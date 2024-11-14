@@ -13,6 +13,7 @@ class Department(models.Model):
     department_url=models.URLField(verbose_name="학과페이지 url", max_length=200)
 
 class Requirement(models.Model):
+    id= models.BigAutoField(verbose_name="졸업 요건 id", primary_key=True)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     graduation_thesis=models.BooleanField(verbose_name="졸논 필요 여부", default = False)
     graduation_exam=models.BooleanField(verbose_name="졸업시험 필요 여부", default = False)
