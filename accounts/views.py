@@ -1,3 +1,4 @@
+from django.utils import timezone
 import requests
 from django.shortcuts import redirect
 from django.conf import settings
@@ -14,7 +15,7 @@ from .serializers import UserSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
-from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.models import SocialAccount, SocialLogin
 
 class MypageUserDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -89,6 +90,10 @@ def google_callback(request):
     # 이메일로 유저 확인
     try:
         user = User.objects.get(email=email)
+        social_login = SocialLogin(account=SocialAccount(user=user, provider='google', uid=email))
+
+        merge_social_account(user, social_login)
+        
         social_user = SocialAccount.objects.get(user=user)
         
         if social_user is None:
@@ -98,6 +103,9 @@ def google_callback(request):
         
         # 이미 로그인된 유저인 경우 JWT 토큰 발급
         access_token, refresh_token = create_jwt_token(user)  # JWT 토큰 생성 함수
+
+        user.last_login = timezone.now()  # 여기서 last_login을 갱신
+        user.save()  
 
         response = JsonResponse({'message': 'Login successful'})
         response['Authorization'] = f'Bearer {access_token}' 
@@ -115,7 +123,17 @@ def google_callback(request):
         response['Authorization'] = f'Bearer {access_token}'
         response['Refresh-Token'] = refresh_token
         return response
-    
+
+def merge_social_account(user, social_login):
+    try:
+        existing_account = SocialAccount.objects.get(user=user, provider='google')
+        if existing_account:
+            # 기존 계정에 병합 처리
+            existing_account.uid = social_login.account.uid
+            existing_account.save()
+    except SocialAccount.DoesNotExist:
+        social_login.account.save()
+
 def create_jwt_token(user):
     refresh = RefreshToken.for_user(user)
     access_token = str(refresh.access_token)
