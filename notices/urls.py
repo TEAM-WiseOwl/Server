@@ -4,4 +4,5 @@ from .views import *
 
 urlpatterns = [
     path("basket/", Notice.as_view()),
+    path("mypage/<int:user_id>/", Mypage.as_view()),
 ]
