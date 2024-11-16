@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Building, Facility
+from .models import Builiding, Facility
 from notices.models import Notice, Organ
 from django.conf import settings
 
@@ -27,7 +27,7 @@ class BuildingSerializer(serializers.ModelSerializer):
     facilities = FacilitySerializer(many=True, read_only=True, source='facility_set') 
 
     class Meta:
-        model = Building
+        model = Builiding
         fields = ['building_num', 'building_name', 'facilities']
     #summary 필요
 
@@ -39,7 +39,7 @@ class NoticeSerializer(serializers.ModelSerializer):
         model = Notice
         fields = ['notice_department', 'notice_title', 'notice_date', 'notice_link']
 
-class MainResponseSerializers(serializers.Serializer):
+class DashBoardSerializer(serializers.Serializer):
     name = serializers.CharField()
     major = serializers.CharField()
     double_major = serializers.CharField()
@@ -49,5 +49,8 @@ class MainResponseSerializers(serializers.Serializer):
     double_credit_completed = serializers.IntegerField()
     double_credit_required = serializers.IntegerField()
     double_requirements = serializers.ListField(child = serializers.CharField())
+
+class MainResponseSerializers(serializers.Serializer):
+    dashboard = DashBoardSerializer
     building_list = BuildingSerializer(many = True)
     notice_list = NoticeSerializer(many = True)
