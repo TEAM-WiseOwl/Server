@@ -10,20 +10,20 @@ from .serializers import *
 from rest_framework import status
 from datetime import datetime
 from .models import *
+from django.db.models import Q
 
 
 
 class NoticePage(APIView):
-  permission_classes = [AllowAny]
-  authentication_classes = []
-  def get(self, request, user_id):
+  def get(self, request):
+    user = request.user
     response_data = None
     try:
-      subscribe_instance = Subscribe.objects.get(user_id=user_id)
+      subscribe_instance = Subscribe.objects.get(user_id=user.user_id)
     except Subscribe.DoesNotExist:
       return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
     try:
-      profile_instance = Profile.objects.get(user_id=user_id)
+      profile_instance = Profile.objects.get(user_id=user.user_id)
     except Profile.DoesNotExist:
        return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
     subscribe_data = {
@@ -42,7 +42,7 @@ class NoticePage(APIView):
         
     major_department_name = major_department.department_name
     double_major_department_name = double_major_department.department_name if double_major_department else None
-    subscribe_instance = Subscribe.objects.get(user_id=user_id)
+    subscribe_instance = Subscribe.objects.get(user_id=user.user_id)
     subscribe_data = {
             "major": subscribe_instance.subscribe_major,
             "double": subscribe_instance.subscribe_double,
@@ -53,7 +53,6 @@ class NoticePage(APIView):
             "flex": subscribe_instance.subscribe_flex,
             "foreign_edu": subscribe_instance.subscribe_foreign_edu,
         }
-    print(subscribe_data["special_foreign"])
     if subscribe_data["major"]:
       crawled_data=crawl_notices_department(department_id=profile_instance.major_id)
       for post in crawled_data:
@@ -64,12 +63,12 @@ class NoticePage(APIView):
           published_date = datetime.strptime(published_date, "%Y.%m.%d").date()
         except ValueError:
           published_date = None
-        if not Notice.objects.filter(notice_link=link, user_id=user_id).exists():
+        if not Notice.objects.filter(notice_link=link, user_id=user.user_id).exists():
                 Notice.objects.create(
                     notice_title=title,
                     notice_link=link,
                     notice_date=published_date,
-                    user_id=user_id,
+                    user_id=user.user_id,
                     notice_read=False,
                     department_id=major_department.department_id,
 
@@ -93,7 +92,7 @@ class NoticePage(APIView):
                     notice_title=title,
                     notice_link=link,
                     notice_date=published_date,
-                    user_id=user_id,
+                    user_id=user.user_id,
                     notice_read=False,
                     department_id=double_major_department.department_id,
 
@@ -112,14 +111,12 @@ class NoticePage(APIView):
           published_date = datetime.strptime(published_date, "%Y-%m-%d").date()
         except ValueError:
           published_date = None
-          print(published_date)
-          print(title)
-        if not Notice.objects.filter(notice_link=link, user_id=user_id).exists():
+        if not Notice.objects.filter(notice_link=link, user_id=user.user_id).exists():
                 Notice.objects.create(
                     notice_title=title,
                     notice_link=link,
                     notice_date=published_date,
-                    user_id=user_id,
+                    user_id=user.user_id,
                     notice_read=False,
                     notice_organ_id=6,
 
@@ -137,14 +134,12 @@ class NoticePage(APIView):
           published_date = datetime.strptime(published_date, "%Y-%m-%d").date()
         except ValueError:
           published_date = None
-          print(published_date)
-          print(title)
-        if not Notice.objects.filter(notice_link=link, user_id=user_id).exists():
+        if not Notice.objects.filter(notice_link=link, user_id=user.user_id).exists():
                 Notice.objects.create(
                     notice_title=title,
                     notice_link=link,
                     notice_date=published_date,
-                    user_id=user_id,
+                    user_id=user.user_id,
                     notice_read=False,
                     notice_organ_id=1,
 
@@ -162,14 +157,12 @@ class NoticePage(APIView):
           published_date = datetime.strptime(published_date,  "%Y.%m.%d").date()
         except ValueError:
           published_date = None
-          print(published_date)
-          print(title)
-        if not Notice.objects.filter(notice_link=link, user_id=user_id).exists():
+        if not Notice.objects.filter(notice_link=link, user_id=user.user_id).exists():
                 Notice.objects.create(
                     notice_title=title,
                     notice_link=link,
                     notice_date=published_date,
-                    user_id=user_id,
+                    user_id=user.user_id,
                     notice_read=False,
                     notice_organ_id=5,
 
@@ -188,14 +181,12 @@ class NoticePage(APIView):
           published_date = datetime.strptime(published_date, "%Y-%m-%d").date()
         except ValueError:
           published_date = None
-          print(published_date)
-          print(title)
-        if not Notice.objects.filter(notice_link=link, user_id=user_id).exists():
+        if not Notice.objects.filter(notice_link=link, user_id=user.user_id).exists():
                 Notice.objects.create(
                     notice_title=title,
                     notice_link=link,
                     notice_date=published_date,
-                    user_id=user_id,
+                    user_id=user.user_id,
                     notice_read=False,
                     notice_organ_id=4,
 
@@ -213,14 +204,12 @@ class NoticePage(APIView):
           published_date = datetime.strptime(published_date, "%Y-%m-%d").date()
         except ValueError:
           published_date = None
-          print(published_date)
-          print(title)
-        if not Notice.objects.filter(notice_link=link, user_id=user_id).exists():
+        if not Notice.objects.filter(notice_link=link, user_id=user.user_id).exists():
                 Notice.objects.create(
                     notice_title=title,
                     notice_link=link,
                     notice_date=published_date,
-                    user_id=user_id,
+                    user_id=user.user_id,
                     notice_read=False,
                     notice_organ_id=3,
 
@@ -238,41 +227,44 @@ class NoticePage(APIView):
           published_date = datetime.strptime(published_date, "%Y-%m-%d").date()
         except ValueError:
           published_date = None
-          print(published_date)
-          print(title)
-        if not Notice.objects.filter(notice_link=link, user_id=user_id).exists():
+        if not Notice.objects.filter(notice_link=link, user_id=user.user_id).exists():
                 Notice.objects.create(
                     notice_title=title,
                     notice_link=link,
                     notice_date=published_date,
-                    user_id=user_id,
+                    user_id=user.user_id,
                     notice_read=False,
                     notice_organ_id=2,
 
 
                 )
+    # 모든 구독 기관에서 읽지 않은 공지사항 갯수 집계
+    new_sum = Notice.objects.filter(
+        Q(user_id=user.user_id) & Q(notice_read=False)
+    ).count()
 
       # 응답 데이터 준비
     response_data = {
-            "subscribe_organ": organ_notices
+            "subscribe_organ": organ_notices,
+            "new_sum": new_sum
         }
 
     return Response(response_data, status=status.HTTP_200_OK)
 
 class AlarmOrgan(APIView):
-  permission_classes = [AllowAny]
-  authentication_classes = []
-  def get(self,request, user_id):
-    subscribe = Subscribe.objects.filter(user_id=user_id).first()
+  def get(self,request):
+    user = request.user
+    subscribe = Subscribe.objects.filter(user_id=user.user_id).first()
         
     if subscribe:
       serializer = SubscribeOrganSerializer(subscribe)
       return Response(serializer.data)
     else:
       return Response({"message": "No subscription found for this user."}, status=404)
-  def patch(self,request, user_id):
+  def patch(self,request):
+    user = request.user
     try:
-      subscribe_instance = Subscribe.objects.get(user_id=user_id)
+      subscribe_instance = Subscribe.objects.get(user_id=user.user_id)
     except Subscribe.DoesNotExist:
       return Response({"detail": "Subscribe record not found."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -291,30 +283,27 @@ class AlarmOrgan(APIView):
     return Response({"detail": "Resource updated successfully"}, status=status.HTTP_200_OK)
 
 class Mypage(APIView):
-  permission_classes = [AllowAny]
-  authentication_classes = []
-  def get(self,request, user_id):
-    print(Profile.objects.all())
-    profile = Profile.objects.get(user=user_id)
+  def get(self,request):
+    user = request.user
+    profile = Profile.objects.get(user_id=user.user_id)
     serializer = MypageSerializer(profile)
     return Response(serializer.data)
 
 class MyinfoEdit(APIView):
-  permission_classes = [AllowAny]
-  authentication_classes = []
-  def get(self, request, user_id):
-    profile = Profile.objects.get(user=user_id)
-    serializer = MypageSerializer(profile)
+  def get(self, request):
+    user = request.user
+    profile = Profile.objects.get(user=user.user_id)
+    serializer = MyInfoSerializer(profile)
     return Response(serializer.data)
   
 class MyCourseEdit(APIView):
-  permission_classes = [AllowAny]
-  authentication_classes = []
-  def get(self, request, user_id):
-    profile=Profile.objects.get(user=user_id)
+  def get(self, request):
+    user = request.user
+    profile=Profile.objects.get(user=user.user_id)
     serializers=CourseCompleteSerializer(profile)
     return Response(serializers.data)
-  def delete(self, request, user_id):
+  def delete(self, request):
+    user = request.user
     complete_year = request.data.get("complete_year")
     school_year = request.data.get("school_year")
     subject_name = request.data.get("subject_name")
@@ -323,7 +312,7 @@ class MyCourseEdit(APIView):
     if subject_department:
       major_subject = MajorSubjectCompleted.objects.filter(
         # user=request.user,
-        user_id=user_id,
+        user_id=user.user_id,
         subject_department=subject_department,
         completed_year=complete_year,
         school_year=school_year
@@ -339,7 +328,7 @@ class MyCourseEdit(APIView):
     subject_gened = SubjectGened.objects.filter(subject_gened_name=subject_name).first()
     if subject_gened:
       general_subject = GeneralSubjectCompleted.objects.filter(
-                user_id=user_id,
+                user_id=user.user_id,
                 subject_gened=subject_gened,
                 completed_year=complete_year,
                 school_year=school_year
@@ -354,7 +343,8 @@ class MyCourseEdit(APIView):
     return Response({"detail": "Subject not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
-  def patch(self, request,user_id):
+  def patch(self, request):
+    user = request.user
     complete_year = request.data.get("complete_year")
     school_year = request.data.get("school_year")
     subject_name = request.data.get("subject_name")
@@ -365,7 +355,7 @@ class MyCourseEdit(APIView):
     subject_department = SubjectDepartment.objects.filter(subject_department_name=subject_name).first()
     if subject_department:
       major_subject = MajorSubjectCompleted.objects.filter(
-      user_id=user_id,
+      user_id=user.user_id,
       subject_department=subject_department,
       completed_year=complete_year,
       school_year=school_year
@@ -380,7 +370,7 @@ class MyCourseEdit(APIView):
     subject_gened = SubjectGened.objects.filter(subject_gened_name=subject_name).first()
     if subject_gened:
       general_subject = GeneralSubjectCompleted.objects.filter(
-        user_id=user_id,
+        user_id=user.user_id,
         subject_gened=subject_gened,
         completed_year=complete_year,
         school_year=school_year

@@ -18,28 +18,28 @@ class MypageSerializer(serializers.ModelSerializer):
     double_minor_department = Department.objects.get(department_id=obj.double_or_minor_id)
     return double_minor_department.department_name
   
-  class MyInfoSerializer(serializers.ModelSerializer):
-    college = serializers.SerializerMethodField()
-    major = serializers.SerializerMethodField()
-    double_college = serializers.SerializerMethodField()
-    double_major = serializers.SerializerMethodField()
-    class Meta:
-      model = Profile
-      field=['college', 'major', 'double_college', 'double_major', 'profile_gubun' ]
+class MyInfoSerializer(serializers.ModelSerializer):
+  college = serializers.SerializerMethodField()
+  major = serializers.SerializerMethodField()
+  double_college = serializers.SerializerMethodField()
+  double_major = serializers.SerializerMethodField()
+  class Meta:
+    model = Profile
+    fields=['college', 'major', 'double_college', 'double_major', 'profile_gubun' ]
 
-    def get_college(self, obj):
-      major_college = College.objects.get(college_id=obj.major_college_id)
-      return major_college.college_name
-    def get_major(self, obj):
-      major = Department.objects.get(department_id=obj.major_id)
-      return major.department_name
-    def get_double_college(self, obj):
-      double_college=College.objects.get(college_id=obj.double_or_minor_college_id)
-      return double_college.college_name
+  def get_college(self, obj):
+    major_college = College.objects.get(college_id=obj.major_college_id)
+    return major_college.college_name
+  def get_major(self, obj):
+    major = Department.objects.get(department_id=obj.major_id)
+    return major.department_name
+  def get_double_college(self, obj):
+    double_college=College.objects.get(college_id=obj.double_or_minor_college_id)
+    return double_college.college_name
     
-    def get_double_major(self, obj):
-      double_major=Department.objects.get(department_id=obj.double_or_minor_id)
-      return double_major.department_name
+  def get_double_major(self, obj):
+    double_major=Department.objects.get(department_id=obj.double_or_minor_id)
+    return double_major.department_name
     
 
 class CourseSubjectSerializer(serializers.Serializer):
