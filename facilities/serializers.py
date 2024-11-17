@@ -9,9 +9,22 @@ class FacilitySerializer(serializers.ModelSerializer):
         model = Facility
         fields = ['facility_name', 'facility_loc']
 
+class FacilitywithBuildingSerializer(serializers.ModelSerializer):
+    building_name = serializers.CharField(source='building.building_name') 
+
+    class Meta:
+        model = Facility
+        fields = ['facility_name', 'building_name', 'facility_loc']
+
+
 class FacilityCategorySerializer(serializers.Serializer):
     facility_category = serializers.CharField()
     facility_list = FacilitySerializer(many=True)
+
+
+class FacilityCategorywithBuildingSerializer(serializers.Serializer):
+    facility_category = serializers.CharField()
+    facility_list = FacilitywithBuildingSerializer(many=True)
     
 
 class FacilitySummarySerializer(serializers.Serializer):
@@ -32,25 +45,18 @@ class BuildingSerializer(serializers.ModelSerializer):
     #summary 필요
 
 class NoticeSerializer(serializers.ModelSerializer):
-    notice_department = serializers.CharField(source='notice_department_id.department_name')
-    notice_link = serializers.URLField()
-
+    notice_department = serializers.SerializerMethodField()
+    
     class Meta:
         model = Notice
         fields = ['notice_department', 'notice_title', 'notice_date', 'notice_link']
+    
+    def get_notice_department(self, obj):
+    # department가 존재하는지 안전하게 확인
+        if hasattr(obj, 'department') and obj.department:
+            return obj.department.department_name
+        elif hasattr(obj, 'notice_organ') and obj.notice_organ:
+            return obj.notice_organ.organ_name
+        return None  # 둘 다 없는 경우
 
-class DashBoardSerializer(serializers.Serializer):
-    name = serializers.CharField()
-    major = serializers.CharField()
-    double_major = serializers.CharField()
-    major_credit_completed = serializers.IntegerField()
-    major_credit_required = serializers.IntegerField()
-    major_requirements = serializers.ListField(child = serializers.CharField())
-    double_credit_completed = serializers.IntegerField()
-    double_credit_required = serializers.IntegerField()
-    double_requirements = serializers.ListField(child = serializers.CharField())
 
-class MainResponseSerializers(serializers.Serializer):
-    dashboard = DashBoardSerializer
-    building_list = BuildingSerializer(many = True)
-    notice_list = NoticeSerializer(many = True)
