@@ -12,9 +12,9 @@ class Organ(models.Model):
 class Notice(models.Model):
     notice_id = models.BigAutoField(verbose_name="알림 고유번호",null=False, primary_key=True)
     notice_organ = models.ForeignKey(Organ, on_delete=models.CASCADE,null=True)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True)
     user=models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    notice_link=models.URLField(verbose_name="알림 url", max_length=200)
+    notice_link=models.URLField(verbose_name="알림 url", max_length=700)
     notice_read=models.BooleanField(verbose_name="알림 읽음 여부", default = False)
     notice_title=models.CharField(verbose_name="알림 제목", max_length=200)
     notice_date=models.DateField(verbose_name="알림 날짜", null=False)  

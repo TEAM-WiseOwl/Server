@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 import local_settings 
 from datetime import timedelta
+from celery.schedules import crontab
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -163,7 +164,8 @@ APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"  # Default
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.permissions.AllowAny', 
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 
     'DEFAULT_PERMISSION_CLASSES': (
@@ -258,3 +260,14 @@ CORS_ALLOW_METHODS = (
 
 APPEND_SLASH = False
 CORS_PREFLIGHT_MAX_AGE = 86400
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Redis URL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
+CELERY_BEAT_SCHEDULE = {
+    'crawl-posts-every-30-minutes': {
+        'task': 'notices.crawler.crawl_notices',
+        'schedule': crontab(minute='*/30'),  # 30분마다 크롤링
+    },
+}
