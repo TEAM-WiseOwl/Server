@@ -13,6 +13,28 @@ from .models import *
 from django.db.models import Q
 
 
+class NoticeAlarm(APIView):
+  def get(self, request):
+     user=request.user
+     notices = Notice.objects.filter(user_id=user.user_id)
+     serialized_data = []
+     for notice in notices:
+            notice_data = {
+                "notice_link": notice.notice_link,
+                "notice_title": notice.notice_title,
+                "notice_date": notice.notice_date.strftime("%Y-%m-%d"),
+                "notice_read": notice.notice_read
+            }
+            
+            # notice_organ_id가 있으면 organ 테이블에서 name을 가져오기
+            if notice.notice_organ:
+                notice_data["notice_department"] = notice.notice_organ.organ_name
+            # department_id가 있으면 department 테이블에서 name을 가져오기
+            elif notice.department:
+                notice_data["notice_department"] = notice.department.department_name
+            
+            serialized_data.append(notice_data)
+     return Response({"notice": serialized_data}, status=200)
 
 class NoticePage(APIView):
   def get(self, request):

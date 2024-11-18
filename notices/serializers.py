@@ -137,4 +137,4 @@ class SubscribeOrganSerializer(serializers.ModelSerializer):
          organs.append({"organ_name": "FLEX 센터", "subscribe_yn": True})
          organs.append({"organ_name": "외국어교육센터", "subscribe_yn": True})
       return organs
-        
+  
