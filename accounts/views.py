@@ -48,7 +48,9 @@ class InfoUserDetailAPIView(APIView):
         serializer=UserSerializer(user)
         return Response(serializer.data)
 
-BASE_URL = 'http://127.0.0.1:8000/'
+
+BASE_URL = 'http://ec2-43-201-90-146.ap-northeast-2.compute.amazonaws.com:8000/'
+#BASE_URL = 'http://127.0.0.1:8000/'
 GOOGLE_CALLBACK_URI = BASE_URL + 'api/accounts/google/callback/'
 
 def google_login(request):
