@@ -7,7 +7,7 @@ from django.conf import settings
 class FacilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Facility
-        fields = ['facility_name', 'facility_loc']
+        fields = ['facility_name', 'facility_loc', 'facility_desc']
 
 class FacilitywithBuildingSerializer(serializers.ModelSerializer):
     building_name = serializers.CharField(source='building.building_name') 
