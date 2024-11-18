@@ -369,14 +369,17 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name="ExtraForeignTest",
+            name="SubjectGenedRequired",
             fields=[
                 (
-                    "extra_test_id",
+                    "id",
                     models.BigAutoField(
-                        primary_key=True, serialize=False, verbose_name="기타시험 아이디"
-                    ),
-                ),
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                        ),
+                ),   
                 (
                     "subject_gened_required_code",
                     models.CharField(
