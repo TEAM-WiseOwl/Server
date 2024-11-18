@@ -109,7 +109,7 @@ def main_view(request):
         if subscribe.subscribe_major:
             notice_filter |= Q(department=major_department)
         if subscribe.subscribe_double and double_minor_department:
-            notie_filter |= Q(department = double_minor_department)
+            notice_filter |= Q(department = double_minor_department)
         
         organ_mapping = {
             'subscribe_ai': 'AI 교육원',
