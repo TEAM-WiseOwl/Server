@@ -8,4 +8,5 @@ urlpatterns = [
     path("mypage/course-edit/", MyCourseEdit.as_view()),
     path("mypage/myinfo-edit/", MyinfoEdit.as_view()),
     path("alarm/organ/", AlarmOrgan.as_view()),
+    path("alarm/", NoticeAlarm.as_view()),
 ]
