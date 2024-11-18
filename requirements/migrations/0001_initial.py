@@ -378,8 +378,8 @@ class Migration(migrations.Migration):
                         primary_key=True,
                         serialize=False,
                         verbose_name="ID",
-                        ),
-                ),   
+                    ),
+                ),
                 (
                     "subject_gened_required_code",
                     models.CharField(
