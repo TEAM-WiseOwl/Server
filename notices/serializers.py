@@ -138,3 +138,143 @@ class SubscribeOrganSerializer(serializers.ModelSerializer):
          organs.append({"organ_name": "외국어교육센터", "subscribe_yn": True})
       return organs
   
+class RequireMajorCompleteSerializer(serializers.ModelSerializer):
+   main = serializers.SerializerMethodField()
+   class Meta:
+      model=Profile
+      fields=['main']
+   def get_main(self, obj):
+      main=[]
+      main.append({"major": Department.objects.get(department_id=obj.major_id).department_name})
+      if Requirement.objects.filter(department_id=obj.major_id, graduation_thesis=True, graduation_gubun="본전공").exists():
+        if obj.grad_research == True:
+            main.append({"grad_research": "완료"})
+        else: 
+            main.append({"grad_research": "미완료"})
+      else:
+        main.append({"grad_research": "불필요"})
+      if Requirement.objects.filter(department_id=obj.major_id, graduation_exam=True, graduation_gubun="본전공").exists():
+        if obj.grad_exam == True:
+            main.append({"grad_exam": "완료"})
+        else: 
+            main.append({"grad_exam": "미완료"})
+      else:
+        main.append({"grad_exam": "불필요"})
+      if Requirement.objects.filter(department_id=obj.major_id, graduation_project=True, graduation_gubun="본전공").exists():
+        if obj.grad_pro == True:
+            main.append({"grad_pro": "완료"})
+        else: 
+            main.append({"grad_pro": "미완료"})
+      else:
+        main.append({"grad_pro": "불필요"})
+      if Requirement.objects.filter(department_id=obj.major_id, graduation_qualifications=True, graduation_gubun="본전공").exists():
+        if obj.grad_certificate == True:
+            main.append({"grad_certificate": "완료"})
+        else: 
+            main.append({"grad_certificate": "미완료"})
+      else:
+        main.append({"grad_certificate": "불필요"})
+      if True:
+        main.append({"for_language_name": obj.for_language_name})
+        main.append({"for_language_score": obj.for_language_score})
+        if obj.for_language == True:
+            main.append({"for_language": "완료"})
+        else: 
+            main.append({"for_language": "미완료"})
+      else:
+        main.append({"for_language": "불필요"})
+      return main
+
+class RequireDoubleCompleteSerializer(serializers.ModelSerializer):
+   main = serializers.SerializerMethodField()
+   class Meta:
+      model=Profile
+      fields=['main']
+   def get_main(self, obj):
+      main=[]
+      main.append({"major": Department.objects.get(department_id=obj.double_or_minor_id).department_name})
+      if Requirement.objects.filter(department_id=obj.double_or_minor_id, graduation_thesis=True, graduation_gubun="이중전공").exists():
+        if obj.double_grad_research == True:
+            main.append({"grad_research": "완료"})
+        else: 
+            main.append({"grad_research": "미완료"})
+      else:
+        main.append({"grad_research": "불필요"})
+      if Requirement.objects.filter(department_id=obj.double_or_minor_id, graduation_exam=True, graduation_gubun="이중전공").exists():
+        if obj.double_grad_exam == True:
+            main.append({"grad_exam": "완료"})
+        else: 
+            main.append({"grad_exam": "미완료"})
+      else:
+        main.append({"grad_exam": "불필요"})
+      if Requirement.objects.filter(department_id=obj.double_or_minor_id, graduation_project=True, graduation_gubun="이중전공").exists():
+        if obj.double_grad_pro == True:
+            main.append({"grad_pro": "완료"})
+        else: 
+            main.append({"grad_pro": "미완료"})
+      else:
+        main.append({"grad_pro": "불필요"})
+      if Requirement.objects.filter(department_id=obj.double_or_minor_id, graduation_qualifications=True, graduation_gubun="이중전공").exists():
+        if obj.double_grad_certificate == True:
+            main.append({"grad_certificate": "완료"})
+        else: 
+            main.append({"grad_certificate": "미완료"})
+      else:
+        main.append({"grad_certificate": "불필요"})
+      if True:
+        main.append({"for_language_name": obj.double_for_language_name})
+        main.append({"for_language_score": obj.double_for_language_score})
+        if obj.double_for_language == True:
+            main.append({"for_language": "완료"})
+        else: 
+            main.append({"for_language": "미완료"})
+      else:
+        main.append({"for_language": "불필요"})
+      return main 
+   
+class RequireMinorCompleteSerializer(serializers.ModelSerializer):
+   main = serializers.SerializerMethodField()
+   class Meta:
+      model=Profile
+      fields=['main']
+   def get_main(self, obj):
+      main=[]
+      main.append({"major": Department.objects.get(department_id=obj.double_or_minor_id).department_name})
+      if Requirement.objects.filter(department_id=obj.double_or_minor_id, graduation_thesis=True, graduation_gubun="이중전공").exists():
+        if obj.double_grad_research == True:
+            main.append({"grad_research": "완료"})
+        else: 
+            main.append({"grad_research": "미완료"})
+      else:
+        main.append({"grad_research": "불필요"})
+      if Requirement.objects.filter(department_id=obj.double_or_minor_id, graduation_exam=True, graduation_gubun="이중전공").exists():
+        if obj.double_grad_exam == True:
+            main.append({"grad_exam": "완료"})
+        else: 
+            main.append({"grad_exam": "미완료"})
+      else:
+        main.append({"grad_exam": "불필요"})
+      if Requirement.objects.filter(department_id=obj.double_or_minor_id, graduation_project=True, graduation_gubun="이중전공").exists():
+        if obj.double_grad_pro == True:
+            main.append({"grad_pro": "완료"})
+        else: 
+            main.append({"grad_pro": "미완료"})
+      else:
+        main.append({"grad_pro": "불필요"})
+      if Requirement.objects.filter(department_id=obj.double_or_minor_id, graduation_qualifications=True, graduation_gubun="이중전공").exists():
+        if obj.double_grad_certificate == True:
+            main.append({"grad_certificate": "완료"})
+        else: 
+            main.append({"grad_certificate": "미완료"})
+      else:
+        main.append({"grad_certificate": "불필요"})
+      if True:
+        main.append({"for_language_name": obj.double_for_language_name})
+        main.append({"for_language_score": obj.double_for_language_score})
+        if obj.double_for_language == True:
+            main.append({"for_language": "완료"})
+        else: 
+            main.append({"for_language": "미완료"})
+      else:
+        main.append({"for_language": "불필요"})
+      return main 

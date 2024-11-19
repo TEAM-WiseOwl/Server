@@ -406,4 +406,46 @@ class MyCourseEdit(APIView):
                 }, status=status.HTTP_200_OK)
     # 과목이 존재하지 않으면 오류 반환
     return Response({"detail": "Subject not found."}, status=status.HTTP_404_NOT_FOUND)
-    
+
+class RequireEdit(APIView):
+   def get(self, request, profile_gubun):
+      user = request.user
+      profile_gubun=profile_gubun
+      profile=Profile.objects.get(user=user.user_id)
+      if profile_gubun == "본전공":
+         serializer = RequireMajorCompleteSerializer(profile)
+         return Response(serializer.data)
+      if profile_gubun == "이중전공":
+         serializer = RequireDoubleCompleteSerializer(profile)
+         return Response(serializer.data)
+      if profile_gubun == "부전공":
+         serializer = RequireMinorCompleteSerializer(profile)
+         return Response(serializer.data)
+      else:
+         return  Response({"detail": "Subject not found."}, status=status.HTTP_404_NOT_FOUND)
+   def patch(self, request, profile_gubun):
+        user = request.user
+        try:
+            profile = Profile.objects.get(user=user.user_id)
+        except Profile.DoesNotExist:
+            return Response({"detail": "Profile not found."}, status=status.HTTP_404_NOT_FOUND)
+        data = request.data
+        if profile_gubun == "본전공":
+            profile.grad_research = data.get("grad_research", profile.grad_research) == "완료"
+            profile.grad_exam = data.get("grad_exam", profile.grad_exam) == "완료"
+            profile.grad_certificate = data.get("grad_certificate", profile.grad_certificate) == "완료"
+            profile.grad_pro = data.get("grad_certificate", profile.grad_pro) == "완료"
+            profile.for_language = data.get("for_language", profile.for_language) == "완료"
+            profile.for_language_name = data.get("for_language_name", profile.for_language_name)
+            profile.for_language_score = data.get("for_language_score", profile.for_language_score)
+            
+        else:
+            profile.grad_research = data.get("grad_research", profile.double_grad_research) == "완료"
+            profile.grad_exam = data.get("grad_exam", profile.double_grad_exam) == "완료"
+            profile.grad_certificate = data.get("grad_certificate", profile.double_grad_certificate) == "완료"
+            profile.for_language = data.get("for_language", profile.double_for_language) == "완료"
+            profile.grad_pro = data.get("grad_certificate", profile.double_grad_pro) == "완료"
+            profile.for_language_name = data.get("for_language_name", profile.double_for_language_name)
+            profile.for_language_score = data.get("for_language_score", profile.double_for_language_score)
+        profile.save()
+        return Response({"detail": "Profile updated successfully."}, status=status.HTTP_200_OK)
