@@ -7,7 +7,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/accounts/", include('accounts.urls', namespace='accounts')),
     path("api/notices/", include('notices.urls')),
-    #path("api/requirements/", include('requirements.urls', namespace='requirements')),
+    path("api/requirements/", include('requirements.urls', namespace='requirements')),
     path("api/products/", include('products.urls', namespace='products')),
     # path("api/payments/", include('payments.urls', namespace='payments')),
     path("api/", include('facilities.urls',namespace='facilities'))
