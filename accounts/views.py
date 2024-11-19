@@ -64,7 +64,7 @@ def google_callback(request):
     client_id = getattr(settings, "GOOGLE_CLIENT_ID")
     client_secret = getattr(settings, "GOOGLE_SECRET")
     code = request.GET.get('code')
-    redirect_uri = "http://localhost:5173/login"
+    redirect_uri = "http://localhost:5173/main"
     # 액세스 토큰 요청
     token_req = requests.post(
         f"https://oauth2.googleapis.com/token",
