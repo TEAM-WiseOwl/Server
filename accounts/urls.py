@@ -10,4 +10,5 @@ urlpatterns = [
     path('google/login/finish/', views.GoogleLogin.as_view(), name='google_login_todjango'),
     path('google/token/refresh/', TokenRefreshAPIView.as_view(), name='token_refresh'),
     path('agree/', AgreeMentAPIView.as_view()),    
+    path('department-info/', ProfileCreateAPIView.as_view()),
 ]

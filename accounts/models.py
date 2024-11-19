@@ -48,10 +48,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='profile')
     major_college = models.ForeignKey(College, verbose_name='대학', on_delete=models.CASCADE, related_name='major_college')
-    double_or_minor_college = models.ForeignKey(College, verbose_name='이중/부전공 대학', on_delete=models.CASCADE, related_name='double_minor_college')
+    double_or_minor_college = models.ForeignKey(College, verbose_name='이중/부전공 대학', on_delete=models.CASCADE, related_name='double_minor_college', null=True, blank=True)
     major = models.ForeignKey(Department, verbose_name='학과', on_delete=models.CASCADE, related_name='major')
-    double_or_minor = models.ForeignKey(Department, verbose_name='이중/부전공 학과', on_delete=models.CASCADE, related_name='double_minor')
-    profile_name = models.CharField(max_length=20)
+    double_or_minor = models.ForeignKey(Department, verbose_name='이중/부전공 학과', on_delete=models.CASCADE, related_name='double_minor', null=True, blank=True)
+    profile_name = models.CharField(max_length=20, unique=True)
     profile_student_number = models.PositiveIntegerField(verbose_name='학번')
     profile_gubun = models.CharField(max_length=20, verbose_name="이중전공, 부전공, 전공심화, 전공심화+부전공")
     profile_agreement = models.BooleanField(default=False)

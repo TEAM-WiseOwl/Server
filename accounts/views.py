@@ -11,6 +11,7 @@ from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from .models import User, Profile
+from requirements.models import Department, College
 from .serializers import UserSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -179,3 +180,75 @@ class AgreeMentAPIView(APIView):
         profile.save()
 
         return Response({"message": "Profile agreement updated successfully."}, status=status.HTTP_200_OK)
+
+class ProfileCreateAPIView(APIView):
+    def post(self, request):
+        data = request.data
+        user = request.user
+
+        try:
+            major_college = College.objects.get(college_id=data['major_college_id'])
+            major = Department.objects.get(department_id=data['major_id'])
+        except College.DoesNotExist:
+            return Response({"error": "Major college not found."}, status=status.HTTP_400_BAD_REQUEST)
+        except Department.DoesNotExist:
+            return Response({"error": "Major department not found."}, status=status.HTTP_400_BAD_REQUEST)
+
+        double_or_minor_college = None
+        double_or_minor = None
+        profile_gubun = data['profile_gubun']
+
+        if profile_gubun == "전공심화":
+            double_or_minor_college = None
+            double_or_minor = None
+
+        elif profile_gubun == "부전공":
+            if 'double_or_minor_college_id' in data and 'double_or_minor_id' in data:
+                try:
+                    double_or_minor_college = College.objects.get(college_id=data['double_or_minor_college_id'])
+                    double_or_minor = Department.objects.get(department_id=data['double_or_minor_id'])
+                except College.DoesNotExist:
+                    return Response({"error": "Minor college not found."}, status=status.HTTP_400_BAD_REQUEST)
+                except Department.DoesNotExist:
+                    return Response({"error": "Minor department not found."}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({"error": "Double/Minor fields are required for 부전공."}, status=status.HTTP_400_BAD_REQUEST)
+
+        elif profile_gubun == "이중전공":
+            if 'double_or_minor_college_id' in data and 'double_or_minor_id' in data:
+                try:
+                    double_or_minor_college = College.objects.get(college_id=data['double_or_minor_college_id'])
+                    double_or_minor = Department.objects.get(department_id=data['double_or_minor_id'])
+                except College.DoesNotExist:
+                    return Response({"error": "Double/Minor college not found."}, status=status.HTTP_400_BAD_REQUEST)
+                except Department.DoesNotExist:
+                    return Response({"error": "Double/Minor department not found."}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({"error": "Double/Minor fields are required for 이중전공."}, status=status.HTTP_400_BAD_REQUEST)
+
+        elif profile_gubun == "전공심화+부전공":
+            if 'double_or_minor_college_id' in data and 'double_or_minor_id' in data:
+                try:
+                    double_or_minor_college = College.objects.get(college_id=data['double_or_minor_college_id'])
+                    double_or_minor = Department.objects.get(department_id=data['double_or_minor_id'])
+                except College.DoesNotExist:
+                    return Response({"error": "Minor college not found."}, status=status.HTTP_400_BAD_REQUEST)
+                except Department.DoesNotExist:
+                    return Response({"error": "Minor department not found."}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({"error": "Double/Minor fields are required for 전공심화+부전공."}, status=status.HTTP_400_BAD_REQUEST)
+
+        profile = Profile.objects.create(
+            user=user,
+            profile_name=data['profile_name'],
+            profile_student_number=data['profile_student_number'],
+            major_college=major_college,
+            major=major,
+            double_or_minor_college=double_or_minor_college,
+            double_or_minor=double_or_minor,
+            profile_gubun=profile_gubun,
+        )
+
+        profile.save()
+
+        return Response({"message": "Profile created successfully."}, status=status.HTTP_201_CREATED)
