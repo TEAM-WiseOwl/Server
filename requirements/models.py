@@ -25,8 +25,7 @@ class Requirement(models.Model):
 
 class OpeningSemester(models.Model):
     opening_semester_id=models.BigAutoField(verbose_name="개설학기 아이디", primary_key=True)
-    subject_year=models.CharField(verbose_name="개설년도", max_length=7)
-    subject_semester=models.CharField(verbose_name="개설학기", max_length=7)
+    subject_semester=models.CharField(verbose_name="개설학기", max_length=10)
     
 class GenedCategory(models.Model):
     gened_category_id=models.BigAutoField(verbose_name="교양 카테고리 아이디", primary_key=True)

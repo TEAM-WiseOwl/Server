@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import College, Department
+from .models import College, Department, GenedCategory
 
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,3 +12,13 @@ class CollegeSerializer(serializers.ModelSerializer):
     class Meta:
         model = College
         fields = ['college_id', 'college_name', 'majors']
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ['department_id', 'department_name']
+
+class GenedCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GenedCategory
+        fields = ['gened_category_id', 'gened_category_name']
