@@ -10,7 +10,7 @@ from allauth.socialaccount.providers.google import views as google_view
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
-from .models import User
+from .models import User, Profile
 from .serializers import UserSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -161,3 +161,21 @@ class TokenRefreshAPIView(APIView):
         except TokenError as e:
             return Response({'message': f"Invalid token:{e}"}, status=status.HTTP_401_UNAUTHORIZED)
         return Response({'access_token': access_token}, status=status.HTTP_200_OK)
+    
+class AgreeMentAPIView(APIView):
+    def post(self, request):
+        user = request.user.user_id
+        print(user)
+        profile_agreement = request.data.get("profile_agreement", None)
+
+        if profile_agreement is None:
+            return Response({"message": "profile_agreement field is required."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            profile = Profile.objects.get(user=user)
+        except Profile.DoesNotExist:
+            return Response({"message": "Profile not found for the user."}, status=status.HTTP_404_NOT_FOUND)
+
+        profile.profile_agreement = profile_agreement
+        profile.save()
+
+        return Response({"message": "Profile agreement updated successfully."}, status=status.HTTP_200_OK)
