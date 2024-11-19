@@ -45,7 +45,7 @@ class SubjectGenedSerializer(serializers.ModelSerializer):
             'subject_gened_room_date'
         ]
 
-class DepartmentSerializer(serializers.ModelSerializer):
+class DepartmentsSerializer(serializers.ModelSerializer):
     courses = SubjectDepartmentSerializer(many=True)
 
     class Meta:
@@ -68,5 +68,5 @@ class GenedSerializer(serializers.ModelSerializer):
         ]
 
 class SubjectListSerializer(serializers.Serializer):
-    subject_department = DepartmentSerializer(many=True)
+    subject_department = DepartmentsSerializer(many=True)
     subject_generation = GenedSerializer(many=True)  
