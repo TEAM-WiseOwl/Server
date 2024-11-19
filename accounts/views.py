@@ -64,7 +64,7 @@ def google_callback(request):
     client_id = getattr(settings, "GOOGLE_CLIENT_ID")
     client_secret = getattr(settings, "GOOGLE_SECRET")
     code = request.GET.get('code')
-    redirect_uri = "http://localhost:5173/login"
+    redirect_uri = "http://localhost:5173/api/accounts/google/callback"
     # 액세스 토큰 요청
     token_req = requests.post(
         f"https://oauth2.googleapis.com/token",
@@ -110,9 +110,15 @@ def google_callback(request):
         user.last_login = timezone.now()  # 여기서 last_login을 갱신
         user.save()  
 
-        response = JsonResponse({'message': 'Login successful'})
-        response['Authorization'] = f'Bearer {access_token}' 
-        response['Refresh-Token'] = refresh_token
+        response = JsonResponse({
+            'message': 'Login successful',
+            'access_token':access_token,
+            'refresh_token':refresh_token
+        })
+
+        response["Authorization"] = f'Bearer {access_token}'
+        response["Refresh-Token"] = refresh_token
+
         return response
     
     except User.DoesNotExist:
