@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import College, Department, GenedCategory
+from .models import College, Department, GenedCategory, SubjectDepartment, SubjectGened
 
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,3 +22,51 @@ class GenedCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = GenedCategory
         fields = ['gened_category_id', 'gened_category_name']
+
+class SubjectDepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubjectDepartment
+        fields = [
+            'subject_department_id',
+            'subject_department_name',
+            'subject_department_professor',
+            'subject_department_credit',
+            'subject_department_room_date'
+        ]
+
+class SubjectGenedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubjectGened
+        fields = [
+            'subject_gened_id',
+            'subject_gened_name',
+            'subject_gened_professor',
+            'subject_gened_credit',
+            'subject_gened_room_date'
+        ]
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    courses = SubjectDepartmentSerializer(many=True)
+
+    class Meta:
+        model = Department
+        fields = [
+            'department_id',
+            'department_name',
+            'courses'
+        ]
+
+class GenedSerializer(serializers.ModelSerializer):
+    courses = SubjectGenedSerializer(many=True)
+    
+    class Meta:
+        model = GenedCategory
+        fields = [
+            'gened_category_id',
+            'gened_category_name',
+            'courses'
+        ]
+
+class SubjectListSerializer(serializers.Serializer):
+    subject_department = DepartmentSerializer(many=True)
+    subject_generation = GenedSerializer(many=True)  
