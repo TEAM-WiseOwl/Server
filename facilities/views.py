@@ -23,7 +23,7 @@ def main_view(request):
     double_minor_credit_completed = calculate_completed_credit_double_minor(user, double_minor_department)
 
     major_credit_required = calculate_required_credits(profile,major_department, "major")
-    double_credit_required = calculate_required_credits(profile, double_minor_department, "double")
+    double_credit_required = calculate_double_minor_credits(profile, major_department)
 
     major_requirements = get_graduation_requirements(major_department, "본전공")
     double_requirements = get_graduation_requirements(double_minor_department, "이중전공") if double_minor_department else []
@@ -160,13 +160,22 @@ def calculate_required_credits(profile, department, type_):
     if not department:
         return 0
     required_credits = RequiredCredit.objects.filter(
-        college = department.college,
-        required_credit_gubun = profile.profile_gubun).order_by('-required_credit_sn')
+        college=department.college,
+        required_credit_gubun=profile.profile_gubun).order_by('-required_credit_sn')
     for required_credit in required_credits:
         if check_student_number_range(profile.profile_student_number, required_credit.required_credit_sn):
             if type_ == "major":
                 return required_credit.required_major_credit
-            elif type_ == "double":
+    return 0
+
+def calculate_double_minor_credits(profile, major_department):
+    if not major_department:
+        return 0
+    required_credits = RequiredCredit.objects.filter(
+        college=major_department.college).order_by('-required_credit_sn')
+    for required_credit in required_credits:
+        if check_student_number_range(profile.profile_student_number, required_credit.required_credit_sn):
+            if profile.profile_gubun in ['이중전공', '부전공']:
                 return required_credit.required_double_or_minor_credit
     return 0
 
