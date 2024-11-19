@@ -72,7 +72,7 @@ def google_callback(request):
             "client_secret": client_secret,
             "code": code,
             "grant_type": "authorization_code",
-            "redirect_uri": GOOGLE_CALLBACK_URI,
+            "redirect_uri": redirect_uri,
             "state": state
         }
     )
