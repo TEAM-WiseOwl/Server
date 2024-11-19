@@ -9,4 +9,5 @@ urlpatterns = [
     path("mypage/myinfo-edit/", MyinfoEdit.as_view()),
     path("alarm/organ/", AlarmOrgan.as_view()),
     path("alarm/", NoticeAlarm.as_view()),
+    path("mypage/<str:profile_gubun>/require-edit/", RequireEdit.as_view()),
 ]
