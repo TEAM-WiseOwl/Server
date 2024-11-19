@@ -73,4 +73,5 @@ class RequestStuNumber(models.Model):
     request_id = models.BigAutoField(primary_key=True)
     request_number = models.CharField(max_length=10)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='request_user_id')
+    college = models.ForeignKey(College, null=True, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, verbose_name= '학과 아이디', on_delete=models.CASCADE, related_name='request_department_id')

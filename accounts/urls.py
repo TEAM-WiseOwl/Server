@@ -11,4 +11,5 @@ urlpatterns = [
     path('google/token/refresh/', TokenRefreshAPIView.as_view(), name='token_refresh'),
     path('agree/', AgreeMentAPIView.as_view()),    
     path('department-info/', ProfileCreateAPIView.as_view()),
+    path('request/student-number/', RequestStuNumAPIView.as_view()),
 ]

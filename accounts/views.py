@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from .models import User, Profile
 from requirements.models import Department, College
-from .serializers import UserSerializer
+from .serializers import StuNumberSerializer, UserSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -258,3 +258,11 @@ class ProfileCreateAPIView(APIView):
         profile.save()
 
         return Response({"message": "Profile created successfully."}, status=status.HTTP_201_CREATED)
+    
+class RequestStuNumAPIView(APIView):
+    def post(self, request):
+        serializer = StuNumberSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response({"message": "Request completed. After adding the relevant department's student number, we will notify you that it has been completed through a notification and email."}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
