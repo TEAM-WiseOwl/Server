@@ -10,6 +10,7 @@ from .serializers import *
 from rest_framework import status
 from datetime import datetime
 from .models import *
+from requirements.models import  *
 from django.db.models import Q
 
 
@@ -449,3 +450,38 @@ class RequireEdit(APIView):
             profile.for_language_score = data.get("for_language_score", profile.double_for_language_score)
         profile.save()
         return Response({"detail": "Profile updated successfully."}, status=status.HTTP_200_OK)
+class OnlyMajor(APIView):
+   def get(self, request):
+    user = request.user
+    request_data = request.data.get('data', [])
+    print(request_data)
+    if not request_data:
+       return Response({"error": "Invalid request data"})
+    result = {"course": []}
+    for entry in request_data:
+      completed_year = entry.get("completed_year")
+      school_year = entry.get("school_year")
+
+      subjects = MajorSubjectCompleted.objects.filter(
+            user_id=user.user_id,
+            completed_year=completed_year,
+            school_year=school_year,
+      ).select_related('subject_department')
+      course_subjects = [
+            {
+                "subject_name": subject.subject_department.subject_department_name,
+                "grade": subject.grade,
+                "retry_yn": subject.retry_yn,
+                "credit": subject.subject_department.subject_department_credit,  # 학점 정보가 SubjectDepartment에 있다고 가정
+            }
+            for subject in subjects
+        ]
+      if course_subjects:  # 비어있지 않은 경우만 추가
+         result["course"].append(
+                {
+                    "school_year": school_year,
+                    "completed_year": completed_year,
+                    "course_subject": course_subjects,
+                }
+            )
+      return Response(result, status=status.HTTP_200_OK)
