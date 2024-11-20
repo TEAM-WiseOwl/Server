@@ -82,7 +82,7 @@ def google_callback(request):
     
     # 구글 API에서 이메일 정보 요청
     email_req = requests.get(
-        f"https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={access_token}"
+        f"https://www.googleapis.com/oauth2/v1/userinfo?access_token={access_token}"
     )
     email_req_status = email_req.status_code
     if email_req_status != 200:
