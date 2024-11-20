@@ -83,10 +83,10 @@ class SubjectDepartmentRequired(models.Model):
 class GeneralSubjectCompleted(models.Model):
     user=models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     subject_gened=models.ForeignKey(SubjectGened, on_delete=models.CASCADE)
-    grade=models.CharField(verbose_name="성적", max_length=5)
+    grade=models.CharField(verbose_name="성적", max_length=5, default='A+')
     retry_yn=models.BooleanField(verbose_name="재수강 여부", default = False)
     school_year=models.IntegerField(verbose_name="학년/학기")
-    completed_year=models.CharField(verbose_name="수강년도", max_length=5)
+    completed_year=models.CharField(verbose_name="수강년도", max_length=10)
 
     class Meta:
         unique_together = ('user', 'subject_gened')  # Django 2.2 이전 버전에서 사용 가능
