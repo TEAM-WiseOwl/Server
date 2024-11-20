@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .models import College, OpeningSemester, Department, GenedCategory, SubjectDepartment, SubjectGened
+from .models import College, MajorSubjectCompleted, OpeningSemester, Department, GenedCategory, SubjectDepartment, SubjectGened
 from .serializers import CollegeSerializer, DepartmentSerializer, GenedCategorySerializer, SubjectListSerializer
 
 class CollegeListAPIView(APIView):
@@ -105,3 +105,37 @@ class SubjectAPIView(APIView):
                 })
         serializer = SubjectListSerializer(response_data)
         return Response(serializer.data)
+
+class AddDepartmentSubAPIView(APIView):
+    def post(self, request, subject_department_id):
+        user = request.user
+        
+        if not subject_department_id:
+            return Response({"error": "subject_department_id parameter is required"}, status=400)
+        
+        try:
+            subject_department = SubjectDepartment.objects.get(pk=subject_department_id)
+        except SubjectDepartment.DoesNotExist:
+            return Response({"error": "SubjectDepartment not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        school_year = request.data.get("school_year")
+        if not school_year:
+            return Response({"error": "subject_department_id parameter is required"}, status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            school_year = int(school_year)
+        except ValueError:
+            return Response({"error": "school_year must be an integer"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if MajorSubjectCompleted.objects.filter(user=user, subject_department=subject_department).exists():
+            return Response({"error": "This subject is already completed by the user."}, status=status.HTTP_400_BAD_REQUEST)
+
+        completed_year = subject_department.opening_semester.subject_semester
+        
+        major_subject_completed = MajorSubjectCompleted.objects.create(
+            user=user,
+            subject_department=subject_department,
+            completed_year=completed_year,
+            school_year=school_year
+        )
+        return Response({"message": "Subject added successfully!"}, status=status.HTTP_201_CREATED)
