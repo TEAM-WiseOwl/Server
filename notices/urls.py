@@ -10,4 +10,5 @@ urlpatterns = [
     path("alarm/organ/", AlarmOrgan.as_view()),
     path("alarm/", NoticeAlarm.as_view()),
     path("mypage/<str:profile_gubun>/require-edit/", RequireEdit.as_view()),
+    path("mypage/course-edit/only-major/", OnlyMajor.as_view()),
 ]
