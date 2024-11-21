@@ -9,4 +9,5 @@ urlpatterns = [
     path('colleges/<str:subject_semester>/subjects/', SubjectAPIView.as_view()),
     path('colleges/<int:subject_department_id>/department/subjects/add/', AddDepartmentSubAPIView.as_view()),
     path('colleges/<int:subject_gened_id>/gened/subjects/add/', AddGenSubAPIView.as_view()),
+    path('i/', IRequirementsAPIView.as_view()),
 ]

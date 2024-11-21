@@ -2,8 +2,9 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .models import College, GeneralSubjectCompleted, MajorSubjectCompleted, OpeningSemester, Department, GenedCategory, SubjectDepartment, SubjectGened
-from .serializers import CollegeSerializer, DepartmentSerializer, GenedCategorySerializer, SubjectListSerializer
+from .models import College, ForeignTestRequired, GeneralSubjectCompleted, MajorSubjectCompleted, OpeningSemester, Department, GenedCategory, Requirement, SubjectDepartment, SubjectGened
+from accounts.models import Profile
+from .serializers import CollegeSerializer, DepartmentSerializer, IRequiredSerializer, GenedCategorySerializer, SubjectListSerializer
 
 class CollegeListAPIView(APIView):
     def get(self, request):
@@ -173,3 +174,64 @@ class AddGenSubAPIView(APIView):
             school_year=school_year
         )
         return Response({"message": "Subject added successfully!"}, status=status.HTTP_201_CREATED)
+
+class IRequirementsAPIView(APIView):
+    def get(self, request):
+        user = request.user
+        
+        try:
+            # 유저 프로필 가져오기
+            profile = Profile.objects.get(user=user)
+        except Profile.DoesNotExist:
+            return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # 본전공과 이중/부전공 학과 가져오기
+        major_department = profile.major
+        double_minor_department = profile.double_or_minor
+
+        # 본전공 데이터
+        major_requirements = Requirement.objects.filter(department=major_department).first()
+        major_tests = ForeignTestRequired.objects.filter(department=major_department)
+
+        # 이중/부전공 데이터
+        double_minor_requirements = Requirement.objects.filter(department=double_minor_department).first() if double_minor_department else None
+        double_minor_tests = ForeignTestRequired.objects.filter(department=double_minor_department) if double_minor_department else None
+
+        # 응답 데이터 구조 생성
+        result = {
+            "major": {
+                "requirement_description": major_requirements.description if major_requirements else None,
+                "extra_foreign_test": None,  # 기본값을 null로 설정
+                "lang_test": {
+                    "basic": [],
+                    "etc": []
+                }
+            },
+            "double_or_minor": {
+                "requirement_description": double_minor_requirements.description if double_minor_requirements else None,
+                "extra_foreign_test": None,  # 기본값을 null로 설정
+                "lang_test": {
+                    "basic": [],
+                    "etc": []
+                }
+            }
+        }
+
+        # 본전공 시험 데이터 분류
+        for test in major_tests:
+            test_data = IRequiredSerializer(test).data
+            if test.test_name == "TOEIC" and test.test_basic_score:
+                result["major"]["lang_test"]["basic"].append(test_data)
+            else:
+                result["major"]["lang_test"]["etc"].append(test_data)
+
+        # 이중/부전공 시험 데이터 분류
+        if double_minor_tests:
+            for test in double_minor_tests:
+                test_data = IRequiredSerializer(test).data
+                if test.test_name == "TOEIC" and test.test_basic_score:
+                    result["double_or_minor"]["lang_test"]["basic"].append(test_data)
+                else:
+                    result["double_or_minor"]["lang_test"]["etc"].append(test_data)
+
+        return Response(result, status=status.HTTP_200_OK)
