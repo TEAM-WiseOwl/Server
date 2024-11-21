@@ -121,21 +121,22 @@ class SubscribeOrganSerializer(serializers.ModelSerializer):
    def get_organ(self, obj):
       organs = []
       profile = Profile.objects.filter(user_id=obj.user_id).first()
+      subscribe=Subscribe.objects.filter(user_id=obj.user_id).first()
       if profile:
          if profile.major_id:
           major = Department.objects.filter(department_id=profile.major_id).first()
           if major:
-             organs.append({"organ_name": major.department_name, "subscribe_yn": True})
+             organs.append({"organ_name": major.department_name, "subscribe_yn": subscribe.subscribe_major})
          if profile.double_or_minor_id:
                 double_major = Department.objects.filter(department_id=profile.double_or_minor_id).first()
                 if double_major:
-                    organs.append({"organ_name": double_major.department_name, "subscribe_yn": True})
-         organs.append({"organ_name": "AI 교육원", "subscribe_yn": True})
-         organs.append({"organ_name": "국제교류팀 교육원", "subscribe_yn": True})
-         organs.append({"organ_name": "진로취업지원센터", "subscribe_yn": True})
-         organs.append({"organ_name": "특수외국어교육진흥원", "subscribe_yn": True})
-         organs.append({"organ_name": "FLEX 센터", "subscribe_yn": True})
-         organs.append({"organ_name": "외국어교육센터", "subscribe_yn": True})
+                    organs.append({"organ_name": double_major.department_name, "subscribe_yn": subscribe.subscribe_double})
+         organs.append({"organ_name": "AI 교육원", "subscribe_yn": subscribe.subscribe_ai})
+         organs.append({"organ_name": "국제교류팀 교육원", "subscribe_yn": subscribe.subscribe_foreign})
+         organs.append({"organ_name": "진로취업지원센터", "subscribe_yn":subscribe.subscribe_cfl})
+         organs.append({"organ_name": "특수외국어교육진흥원", "subscribe_yn": subscribe.subscribe_special_foreign})
+         organs.append({"organ_name": "FLEX 센터", "subscribe_yn": subscribe.subscribe_flex})
+         organs.append({"organ_name": "외국어교육센터", "subscribe_yn": subscribe.subscribe_foreign_edu})
       return organs
   
 class RequireMajorCompleteSerializer(serializers.ModelSerializer):

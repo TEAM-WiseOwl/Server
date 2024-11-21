@@ -134,7 +134,7 @@ def crawl_notices_foreign_cfl():
   result=[]
   temp=lists[0].find("a")["onclick"]
   number = re.search(r"\d+", temp).group()  # 숫자만 추출
-  print(number)
+  # print(number)
   for list in lists:
      title=list.find("td", attrs={"class":"title"}).get_text().strip()
      new_url=list.find("a")["onclick"]
@@ -164,9 +164,9 @@ def crawl_notices_department(department_id):
   soup = BeautifulSoup(response.text, "lxml") # 가져온 HTML 문서를 파서를 통해 BeautifulSoup 객체로 만듦
   tbody=soup.find('tbody')
   lists=tbody.find_all('tr')[4:9]
-  print(lists[0].find("td", attrs={"class":"td-subject"}).get_text().strip())
-  print(lists[0].find("td", attrs={"class":"td-date"}).get_text().strip())
-  print(lists[0].find('a').get('href'))
+  # print(lists[0].find("td", attrs={"class":"td-subject"}).get_text().strip())
+  # print(lists[0].find("td", attrs={"class":"td-date"}).get_text().strip())
+  # print(lists[0].find('a').get('href'))
   result=[]
   for list in lists:
      title=list.find("td", attrs={"class":"td-subject"}).get_text().strip()

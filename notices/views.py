@@ -76,6 +76,7 @@ class NoticePage(APIView):
             "flex": subscribe_instance.subscribe_flex,
             "foreign_edu": subscribe_instance.subscribe_foreign_edu,
         }
+    print(subscribe_data)
     if subscribe_data["major"]:
       crawled_data=crawl_notices_department(department_id=profile_instance.major_id)
       for post in crawled_data:
@@ -165,12 +166,11 @@ class NoticePage(APIView):
                     user_id=user.user_id,
                     notice_read=False,
                     notice_organ_id=1,
-
-
                 )
     if subscribe_data["cfl"]:
       organ_name = "진로취업센터" 
       organ_notices[organ_name] = crawl_notices_foreign_cfl()
+      print(organ_notices[organ_name])     
       crawled_data=crawl_notices_foreign_cfl()
       for post in crawled_data:
         title = post['title']
@@ -191,7 +191,7 @@ class NoticePage(APIView):
 
 
                 )
-                
+       
     if subscribe_data["special_foreign"]:
       organ_name = "특수외국어교육진흥원"  # 기관명은 창업지원센터로 예시
       organ_notices[organ_name] = crawl_notices_foreign_special()
