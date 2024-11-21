@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import College, Department, GenedCategory, SubjectDepartment, SubjectGened
+from .models import College, Department, ForeignTestRequired, GenedCategory, SubjectDepartment, SubjectGened
 
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -70,3 +70,8 @@ class GenedSerializer(serializers.ModelSerializer):
 class SubjectListSerializer(serializers.Serializer):
     subject_department = DepartmentsSerializer(many=True)
     subject_generation = GenedSerializer(many=True)  
+
+class IRequiredSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ForeignTestRequired
+        fields = ['test_name', 'test_basic_score']
