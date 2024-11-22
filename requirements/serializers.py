@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import College, Department, ForeignTestRequired, GenedCategory, SubjectDepartment, SubjectGened
+from .models import College, Department, ForeignTestRequired, GenedCategory, RequiredCredit, SubjectDepartment, SubjectGened
 
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -75,3 +75,16 @@ class IRequiredSerializer(serializers.ModelSerializer):
     class Meta:
         model = ForeignTestRequired
         fields = ['test_name', 'test_basic_score']
+
+class RequiredCreditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RequiredCredit
+        fields = ['required_credit_gubun', 'required_major_credit', 'required_double_or_minor_credit', 'required_gened_credit']
+
+
+class CompletedCreditsSerializer(serializers.Serializer):
+    main_major_credits = serializers.IntegerField()
+    double_major_credits = serializers.IntegerField()
+    minor_credits = serializers.IntegerField(allow_null=True)
+    liberal_credits = serializers.IntegerField()
+    elective_credits = serializers.IntegerField()
