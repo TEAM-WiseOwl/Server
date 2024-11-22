@@ -64,7 +64,14 @@ class Profile(models.Model):
     grad_certificate = models.BooleanField(default=False)
     for_language = models.BooleanField(default=False)
     for_language_name = models.CharField(max_length=50, verbose_name='외국어 시험명', blank=True, null=True)
-    for_language_score = models.PositiveBigIntegerField(verbose_name='외국어 시험점수', blank=True, null=True)
+    for_language_score = models.PositiveBigIntegerField(verbose_name='외국어 시험점수', blank=True, null=True) 
+    double_grad_research = models.BooleanField(default=False)
+    double_grad_exam = models.BooleanField(default=False)
+    double_grad_pro = models.BooleanField(default=False)
+    double_grad_certificate = models.BooleanField(default=False)
+    double_for_language = models.BooleanField(default=False)
+    double_for_language_name = models.CharField(max_length=50, verbose_name='외국어 시험명', blank=True, null=True)
+    double_for_language_score = models.PositiveBigIntegerField(verbose_name='외국어 시험점수', blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.email} - Profile"
