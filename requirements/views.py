@@ -2,7 +2,8 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .models import College, ForeignTestRequired, GeneralSubjectCompleted, MajorSubjectCompleted, OpeningSemester, Department, GenedCategory, Requirement, SubjectDepartment, SubjectGened
+from sympy import Sum
+from .models import College, ForeignTestRequired, GeneralSubjectCompleted, MajorSubjectCompleted, OpeningSemester, Department, GenedCategory, RequiredCredit, Requirement, SubjectDepartment, SubjectGened
 from accounts.models import Profile
 from .serializers import CollegeSerializer, DepartmentSerializer, IRequiredSerializer, GenedCategorySerializer, SubjectListSerializer
 
@@ -233,5 +234,132 @@ class IRequirementsAPIView(APIView):
                     result["double_or_minor"]["lang_test"]["basic"].append(test_data)
                 else:
                     result["double_or_minor"]["lang_test"]["etc"].append(test_data)
+
+        return Response(result, status=status.HTTP_200_OK)
+
+class GraduationProgressAPIView(APIView):
+    @staticmethod
+    def parse_required_credit_sn(required_credit_sn):
+        if "~" in required_credit_sn:
+            parts = required_credit_sn.split("~")
+            lower_bound = int(parts[0])
+            upper_bound = int(parts[1]) if len(parts) > 1 and parts[1] else None
+            return lower_bound, upper_bound
+        return None, None
+
+    @staticmethod
+    def is_in_credit_sn_range(required_credit_sn, student_number):
+        lower_bound, upper_bound = GraduationProgressAPIView.parse_required_credit_sn(required_credit_sn)
+        if lower_bound is not None:
+            if upper_bound is not None:
+                return lower_bound <= student_number <= upper_bound
+            return student_number >= lower_bound
+        return False
+
+    def get(self, request):
+        user = request.user.user_id
+
+        try:
+            profile = Profile.objects.get(user=user)
+        except Profile.DoesNotExist:
+            return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        result = {
+            "main_major_completion_rate": None,
+            "double_major_completion_rate": None,
+            "liberal_completion_rate": None,
+            "completed_credits": {
+                "main_major_credits": None,
+                "double_minor_major_credits": None,
+                "liberal_credits": None,
+                "elective_credits": 0,
+            },
+            "required_credits": {
+                "main_major_graduation_credits": None,
+                "double_minor_major_graduation_credits": None,
+                "liberal_graduation_credits": None,
+            },
+        }
+
+        required_credits_all = RequiredCredit.objects.filter(
+            college=profile.major_college,
+            required_credit_gubun=profile.profile_gubun,
+        )
+
+        required_credits = None
+        for credit in required_credits_all:
+            if credit.required_credit_sn.isdigit() or "~" in credit.required_credit_sn:
+                if self.is_in_credit_sn_range(credit.required_credit_sn, profile.profile_student_number):
+                    required_credits = credit
+                    break
+            else:
+                if credit.required_credit_sn == profile.major.department_name:
+                    required_credits = credit
+                    break
+                if credit.required_credit_sn == "C&T" and profile.major.department_name in ["디지털콘텐츠학부", "투어리즘 & 웰니스학부"]:
+                    required_credits = credit
+                    break
+                if credit.required_credit_sn == "글로벌스포츠산업학부" and profile.major.department_name == "글로벌스포츠산업학부":
+                    required_credits = credit
+                    break
+
+        if required_credits:
+            result["required_credits"]["main_major_graduation_credits"] = required_credits.required_major_credit
+            result["required_credits"]["double_minor_major_graduation_credits"] = required_credits.required_double_or_minor_credit
+            result["required_credits"]["liberal_graduation_credits"] = required_credits.required_gened_credit
+
+        main_major_queryset = MajorSubjectCompleted.objects.filter(user=user, subject_department__department=profile.major)
+        main_major_credits = sum(
+            record.subject_department.subject_department_credit for record in main_major_queryset
+        )
+        result["completed_credits"]["main_major_credits"] = main_major_credits
+
+        double_minor_major_credits = 0
+        if profile.double_or_minor:
+            double_major_queryset = MajorSubjectCompleted.objects.filter(
+                user=user, subject_department__department=profile.double_or_minor
+            )
+            double_minor_major_credits = sum(
+                record.subject_department.subject_department_credit for record in double_major_queryset
+            )
+        result["completed_credits"]["double_minor_major_credits"] = double_minor_major_credits
+
+        liberal_queryset = GeneralSubjectCompleted.objects.filter(
+            user=user, subject_gened__subject_gened_credit__isnull=False
+        )
+        liberal_credits = sum(
+            record.subject_gened.subject_gened_credit for record in liberal_queryset
+        )
+        result["completed_credits"]["liberal_credits"] = liberal_credits
+
+        if result["required_credits"]["liberal_graduation_credits"]:
+            liberal_required = result["required_credits"]["liberal_graduation_credits"]
+            if liberal_credits > liberal_required:
+                result["completed_credits"]["elective_credits"] += liberal_credits - liberal_required
+
+        if result["required_credits"]["main_major_graduation_credits"]:
+            main_major_required = result["required_credits"]["main_major_graduation_credits"]
+            if main_major_credits > main_major_required:
+                result["completed_credits"]["elective_credits"] += main_major_credits - main_major_required
+
+        if profile.double_or_minor and result["required_credits"]["double_minor_major_graduation_credits"]:
+            double_minor_required = result["required_credits"]["double_minor_major_graduation_credits"]
+            if double_minor_major_credits > double_minor_required:
+                result["completed_credits"]["elective_credits"] += double_minor_major_credits - double_minor_required
+
+        if result["required_credits"]["main_major_graduation_credits"]:
+            result["main_major_completion_rate"] = round(
+                (main_major_credits / result["required_credits"]["main_major_graduation_credits"]) * 100, 1
+            )
+
+        if profile.double_or_minor and result["required_credits"]["double_minor_major_graduation_credits"]:
+            result["double_major_completion_rate"] = round(
+                (double_minor_major_credits / result["required_credits"]["double_minor_major_graduation_credits"]) * 100, 1
+            )
+
+        if result["required_credits"]["liberal_graduation_credits"]:
+            result["liberal_completion_rate"] = round(
+                (liberal_credits / result["required_credits"]["liberal_graduation_credits"]) * 100, 1
+            )
 
         return Response(result, status=status.HTTP_200_OK)
