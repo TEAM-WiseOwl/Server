@@ -189,13 +189,21 @@ class IRequirementsAPIView(APIView):
         # 본전공과 이중/부전공 학과 가져오기
         major_department = profile.major
         double_minor_department = profile.double_or_minor
-
+        graduation_gubun = profile.profile_gubun
+        
         # 본전공 데이터
-        major_requirements = Requirement.objects.filter(department=major_department).first()
+        major_requirements = Requirement.objects.filter(department=major_department, graduation_gubun = "본전공").first()
         major_tests = ForeignTestRequired.objects.filter(department=major_department)
 
+        graduation_gubun_value = None
+
+        if graduation_gubun in ["전공심화+부전공", "부전공"]:
+            graduation_gubun_value = "부전공"
+        elif graduation_gubun == "이중전공":
+            graduation_gubun_value = "이중전공"
+
         # 이중/부전공 데이터
-        double_minor_requirements = Requirement.objects.filter(department=double_minor_department).first() if double_minor_department else None
+        double_minor_requirements = Requirement.objects.filter(department=double_minor_department, graduation_gubun = graduation_gubun_value).first() if double_minor_department else None
         double_minor_tests = ForeignTestRequired.objects.filter(department=double_minor_department) if double_minor_department else None
 
         # 응답 데이터 구조 생성
@@ -362,4 +370,74 @@ class GraduationProgressAPIView(APIView):
                 (liberal_credits / result["required_credits"]["liberal_graduation_credits"]) * 100, 1
             )
 
+        return Response(result, status=status.HTTP_200_OK)
+
+class RequirementAPIView(APIView):
+    def get(self, request):
+        user = request.user
+        
+        try:
+            profile = Profile.objects.get(user=user)
+        except Profile.DoesNotExist:
+            return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        major_department = profile.major
+        double_minor_department = profile.double_or_minor
+        graduation_gubun = profile.profile_gubun
+
+        major_requirements = Requirement.objects.filter(department=major_department, graduation_gubun = "본전공").first()
+        major_tests = ForeignTestRequired.objects.filter(department=major_department).exists()
+        
+        graduation_gubun_value = None
+        
+        if graduation_gubun in ["전공심화+부전공", "부전공"]:
+            graduation_gubun_value = "부전공"
+        elif graduation_gubun == "이중전공":
+            graduation_gubun_value = "이중전공"
+
+        double_minor_requirements = Requirement.objects.filter(department=double_minor_department, graduation_gubun = graduation_gubun_value).first() if double_minor_department else None
+       
+        result = {
+            "main_major_conditions": {
+                "complete_requirment": [
+                {
+                    "grad_research": profile.grad_research,
+                    "grad_exam": profile.grad_exam,
+                    "grad_pro": profile.grad_pro,
+                    "grad_certificate": profile.grad_certificate,
+                    "for_langauge": profile.for_language
+                }
+                ],
+                "requirement": [
+                {
+                    "graduation_foreign": True if major_tests else False,
+                    "graduation_project": major_requirements.graduation_project,
+                    "graduation_exam": major_requirements.graduation_exam,
+                    "graduation_thesis": major_requirements.graduation_thesis,
+                    "graduation_qualifications": major_requirements.graduation_qualifications,
+                    "graduation_requirments": major_requirements.graduation_subjects
+                }
+                ]
+            },
+            "double_minor_major_conditions": {
+                "double_complete_requirment": [
+                {
+                    "double_grad_research": profile.double_grad_research,
+                    "double_grad_exam": profile.double_grad_exam,
+                    "double_grad_pro": profile.double_grad_pro,
+                    "double_grad_certificate": profile.double_grad_certificate,
+                    "double_for_langauge": profile.double_for_language
+                }
+                ],
+                "requirement": [
+                {
+                    "graduation_project": double_minor_requirements.graduation_project,
+                    "graduation_exam": double_minor_requirements.graduation_exam,
+                    "graduation_thesis": double_minor_requirements.graduation_thesis,
+                    "graduation_qualifications": double_minor_requirements.graduation_qualifications,
+                    "graduation_requirments": double_minor_requirements.graduation_subjects
+                }
+                ]
+            }
+            }
         return Response(result, status=status.HTTP_200_OK)

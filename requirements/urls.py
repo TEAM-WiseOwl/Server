@@ -11,4 +11,5 @@ urlpatterns = [
     path('colleges/<int:subject_gened_id>/gened/subjects/add/', AddGenSubAPIView.as_view()),
     path('i/', IRequirementsAPIView.as_view()),
     path('graph/', GraduationProgressAPIView.as_view()),
+    path('', RequirementAPIView.as_view()),
 ]
