@@ -319,6 +319,37 @@ class MyinfoEdit(APIView):
     serializer = MyInfoSerializer(profile)
     return Response(serializer.data)
   
+class MyinfoEditMajor(APIView):
+   def patch(self, request):
+    user = request.user
+    college = request.data.get("college")
+    major = request.data.get("major")
+    profile_gubun = request.data.get("profile_gubun")
+    second_college = request.data.get("second_college")
+    second_major = request.data.get("second_major")
+    profile=Profile.objects.get(user=user.user_id)
+    department=Department.objects.get(department_name=major)
+    sec_department=Department.objects.get(department_name=second_major)
+    profile.major_id=department.department_id
+    profile.major_college_id=department.college_id
+    profile.double_or_minor_id=sec_department.department_id
+    profile.double_or_minor_college_id=sec_department.college_id
+    profile.save()
+    return Response({"detail": "Profile updated successfully."}, status=status.HTTP_200_OK)
+class MyInfoEditGubun(APIView):
+   def patch(self, request):
+      user=request.user
+      profile_gubun=request.data.get("profile_gubun")
+      new_major=request.data.get("changed_major")
+      profile=Profile.objects.get(user=user.user_id)
+      department=Department.objects.get(department_name=new_major)
+      profile.profile_gubun=profile_gubun
+      profile.double_or_minor_id=department.department_id
+      profile.double_or_minor_id=department.college_id
+      profile.save()
+      return Response({"detail": "Profile updated successfully."}, status=status.HTTP_200_OK)
+
+        
 class MyCourseEdit(APIView):
   def get(self, request):
     user = request.user
