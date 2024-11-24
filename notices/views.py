@@ -485,6 +485,7 @@ class OnlyMajor(APIView):
    def get(self, request):
     user = request.user
     request_data = request.data.get('data', [])
+    profile=Profile.objects.get(user=user.user_id)
     print(request_data)
     if not request_data:
        return Response({"error": "Invalid request data"})
@@ -497,7 +498,9 @@ class OnlyMajor(APIView):
             user_id=user.user_id,
             completed_year=completed_year,
             school_year=school_year,
-      ).select_related('subject_department')
+      ).select_related('subject_department').filter(
+     Q(subject_department__department_id=profile.major_id) | Q(subject_department__department_id=profile.double_or_minor_id)
+)
       course_subjects = [
             {
                 "subject_name": subject.subject_department.subject_department_name,
