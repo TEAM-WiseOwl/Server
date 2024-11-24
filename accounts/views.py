@@ -10,6 +10,8 @@ from allauth.socialaccount.providers.google import views as google_view
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
+
+from notices.models import Subscribe
 from .models import User, Profile
 from requirements.models import Department, College
 from .serializers import StuNumberSerializer, UserSerializer
@@ -132,7 +134,7 @@ def google_callback(request):
         response['Authorization'] = f'Bearer {access_token}'
         response['Refresh-Token'] = refresh_token
         return response
-
+#리다이렉트 정해줘야함
 def merge_social_account(user, social_login):
     try:
         existing_account = SocialAccount.objects.get(user=user, provider='google')
@@ -208,19 +210,7 @@ class ProfileCreateAPIView(APIView):
             double_or_minor_college = None
             double_or_minor = None
 
-        elif profile_gubun == "부전공":
-            if 'double_or_minor_college_id' in data and 'double_or_minor_id' in data:
-                try:
-                    double_or_minor_college = College.objects.get(college_id=data['double_or_minor_college_id'])
-                    double_or_minor = Department.objects.get(department_id=data['double_or_minor_id'])
-                except College.DoesNotExist:
-                    return Response({"error": "Minor college not found."}, status=status.HTTP_400_BAD_REQUEST)
-                except Department.DoesNotExist:
-                    return Response({"error": "Minor department not found."}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                return Response({"error": "Double/Minor fields are required for 부전공."}, status=status.HTTP_400_BAD_REQUEST)
-
-        elif profile_gubun == "이중전공":
+        elif profile_gubun in ["부전공", "이중전공", "전공심화+부전공"]:
             if 'double_or_minor_college_id' in data and 'double_or_minor_id' in data:
                 try:
                     double_or_minor_college = College.objects.get(college_id=data['double_or_minor_college_id'])
@@ -230,20 +220,9 @@ class ProfileCreateAPIView(APIView):
                 except Department.DoesNotExist:
                     return Response({"error": "Double/Minor department not found."}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response({"error": "Double/Minor fields are required for 이중전공."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error": f"Double/Minor fields are required for {profile_gubun}."}, status=status.HTTP_400_BAD_REQUEST)
 
-        elif profile_gubun == "전공심화+부전공":
-            if 'double_or_minor_college_id' in data and 'double_or_minor_id' in data:
-                try:
-                    double_or_minor_college = College.objects.get(college_id=data['double_or_minor_college_id'])
-                    double_or_minor = Department.objects.get(department_id=data['double_or_minor_id'])
-                except College.DoesNotExist:
-                    return Response({"error": "Minor college not found."}, status=status.HTTP_400_BAD_REQUEST)
-                except Department.DoesNotExist:
-                    return Response({"error": "Minor department not found."}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                return Response({"error": "Double/Minor fields are required for 전공심화+부전공."}, status=status.HTTP_400_BAD_REQUEST)
-
+        # Profile 생성
         profile = Profile.objects.create(
             user=user,
             profile_name=data['profile_name'],
@@ -255,10 +234,22 @@ class ProfileCreateAPIView(APIView):
             profile_gubun=profile_gubun,
         )
 
+        # Subscribe 업데이트
+        subscribe, created = Subscribe.objects.get_or_create(user=user)
+
+        # 본전공 구독 추가
+        subscribe.subscribe_major = True
+
+        # 이중전공 또는 부전공 구독 추가
+        if double_or_minor:
+            subscribe.subscribe_double = True
+
+        # 상태 저장
+        subscribe.save()
         profile.save()
 
-        return Response({"message": "Profile created successfully."}, status=status.HTTP_201_CREATED)
-    
+        return Response({"message": "Profile and subscription created successfully."}, status=status.HTTP_201_CREATED)
+
 class RequestStuNumAPIView(APIView):
     def post(self, request):
         serializer = StuNumberSerializer(data=request.data, context={'request': request})
