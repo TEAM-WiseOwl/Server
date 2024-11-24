@@ -12,4 +12,5 @@ urlpatterns = [
     path('i/', IRequirementsAPIView.as_view()),
     path('graph/', GraduationProgressAPIView.as_view()),
     path('', RequirementAPIView.as_view()),
+    path('required-subject/', RequirementSubjectAPIView.as_view()),
 ]
