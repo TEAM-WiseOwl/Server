@@ -339,13 +339,20 @@ class MyinfoEditMajor(APIView):
 class MyInfoEditGubun(APIView):
    def patch(self, request):
       user=request.user
-      profile_gubun=request.data.get("profile_gubun")
-      new_major=request.data.get("changed_major")
       profile=Profile.objects.get(user=user.user_id)
-      department=Department.objects.get(department_name=new_major)
+      profile_gubun=request.data.get("profile_gubun")
+      # print(profile_gubun)
       profile.profile_gubun=profile_gubun
-      profile.double_or_minor_id=department.department_id
-      profile.double_or_minor_id=department.college_id
+     
+      if (profile_gubun=="전공심화"):
+         profile.double_or_minor_id= None
+         profile.double_or_minor_college_id=None
+  
+      else:
+         new_major=request.data.get("changed_major")
+         department=Department.objects.get(department_name=new_major)
+         profile.double_or_minor_id=department.department_id
+         profile.double_or_minor_college_id=department.college_id
       profile.save()
       return Response({"detail": "Profile updated successfully."}, status=status.HTTP_200_OK)
 
