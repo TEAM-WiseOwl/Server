@@ -1,9 +1,10 @@
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from sympy import Sum
-from .models import College, ForeignTestRequired, GeneralSubjectCompleted, MajorSubjectCompleted, OpeningSemester, Department, GenedCategory, RequiredCredit, Requirement, SubjectDepartment, SubjectGened
+from django.db.models import Q
+from .models import College, ExceptionDepartmentSubject, ExceptionGenedSubject, ForeignTestRequired, GeneralSubjectCompleted, MajorSubjectCompleted, OpeningSemester, Department, GenedCategory, RequiredCredit, Requirement, SubjectDepartment, SubjectDepartmentRequired, SubjectGened, SubjectGenedRequired
 from accounts.models import Profile
 from .serializers import CollegeSerializer, DepartmentSerializer, IRequiredSerializer, GenedCategorySerializer, SubjectListSerializer
 
@@ -441,3 +442,167 @@ class RequirementAPIView(APIView):
             }
             }
         return Response(result, status=status.HTTP_200_OK)
+
+class RequirementSubjectAPIView(APIView):
+    def get(self, request):
+        user = request.user
+
+        try:
+            profile = Profile.objects.get(user=user)
+        except Profile.DoesNotExist:
+            return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # 사용자 정보 가져오기
+        major_department = profile.major
+        double_minor_department = profile.double_or_minor
+
+        print(f"User Profile: {profile}")
+        print(f"Major Department: {major_department}")
+        print(f"Double/Minor Department: {double_minor_department}")
+
+        # Helper 함수: 이수 여부 확인
+        def is_course_completed(required_code, user_courses, exception_table, course_type="major"):
+            print(f"Checking completion for required_code: {required_code}, course_type: {course_type}")
+
+            if course_type == "major":
+                if required_code[:6] in {course.subject_department.subject_department_code[:6] for course in user_courses}:
+                    print(f"Direct match found for major course: {required_code}")
+                    return True
+            elif course_type == "gened":
+                if required_code[:6] in {course.subject_gened.subject_gened_code[:6] for course in user_courses}:
+                    print(f"Direct match found for gened course: {required_code}")
+                    return True
+
+            exceptions = exception_table.filter(comparison_code=required_code)
+            print(f"Found exceptions: {exceptions}")
+
+            for exception in exceptions:
+                if exception.code_match:
+                    print(f"Checking code match for {exception}")
+                    if course_type == "major":
+                        if any(exception.comparison_code[:6] == course.subject_department.subject_department_code[:6] for course in user_courses):
+                            print(f"Code match found for major course: {required_code}")
+                            return True
+                    elif course_type == "gened":
+                        if any(exception.comparison_code[:6] == course.subject_gened.subject_gened_code[:6] for course in user_courses):
+                            print(f"Code match found for gened course: {required_code}")
+                            return True
+                elif exception.name_match:
+                    print(f"Checking name match for {exception}")
+                    if course_type == "major":
+                        if any(exception.comparison_name == course.subject_department.subject_department_name for course in user_courses):
+                            print(f"Name match found for major course: {required_code}")
+                            return True
+                    elif course_type == "gened":
+                        if any(exception.comparison_name == course.subject_gened.subject_gened_name for course in user_courses):
+                            print(f"Name match found for gened course: {required_code}")
+                            return True
+
+            print(f"No match found for {required_code}")
+            return False
+
+        # 사용자 주전공 과목 가져오기
+        user_major_courses = MajorSubjectCompleted.objects.filter(
+            user=user,
+            subject_department__department=major_department
+        )
+        print(f"User Major Courses for Major Department ({major_department}): {user_major_courses}")
+
+        # 사용자 복수전공/부전공 과목 가져오기
+        user_double_minor_courses = MajorSubjectCompleted.objects.filter(
+            user=user,
+            subject_department__department=double_minor_department
+        )
+        print(f"User Major Courses for Double/Minor Department ({double_minor_department}): {user_double_minor_courses}")
+
+        # 교양 과목 가져오기
+        user_gened_courses = GeneralSubjectCompleted.objects.filter(user=user)
+        print(f"User Gened Courses: {user_gened_courses}")
+
+        # 주전공 필수 과목
+        main_major_required_courses = []
+        required_courses = SubjectDepartmentRequired.objects.filter(
+            department=major_department,
+            subject_department_required_1=True
+        )
+        print(f"Main Major Required Courses for Major Department ({major_department}): {required_courses}")
+
+        for required_course in required_courses:
+            print(f"Processing Main Major Required Course: {required_course}")
+            completion_status = is_course_completed(
+                required_course.subject_department_required_code,
+                user_major_courses,
+                ExceptionDepartmentSubject.objects.filter(department=major_department),
+                course_type="major"
+            )
+            main_major_required_courses.append({
+                "completion_status": completion_status,
+                "subject_department_name": required_course.subject_department_required_name,
+                "subject_department_code": required_course.subject_department_required_code
+            })
+
+        # 복수전공/부전공 필수 과목
+        double_minor_required_courses = []
+        if double_minor_department:
+            required_courses = SubjectDepartmentRequired.objects.filter(
+                department=double_minor_department,
+                subject_department_required_2=True
+            )
+            print(f"Double/Minor Required Courses for Double/Minor Department ({double_minor_department}): {required_courses}")
+
+            for required_course in required_courses:
+                print(f"Processing Double/Minor Required Course: {required_course}")
+                completion_status = is_course_completed(
+                    required_course.subject_department_required_code,
+                    user_double_minor_courses,
+                    ExceptionDepartmentSubject.objects.filter(department=double_minor_department),
+                    course_type="major"
+                )
+                double_minor_required_courses.append({
+                    "completion_status": completion_status,
+                    "subject_department_name": required_course.subject_department_required_name,
+                    "subject_department_code": required_course.subject_department_required_code
+                })
+
+        # 교양 필수 과목
+        liberal_required_courses = []
+        for required_course in SubjectGenedRequired.objects.filter(department=major_department):
+            print(f"Processing Liberal Required Course: {required_course}")
+            completion_status = is_course_completed(
+                required_course.subject_gened_required_code,
+                user_gened_courses,
+                ExceptionGenedSubject.objects.filter(department=major_department),
+                course_type="gened"
+            )
+
+            # 교양 과목 정보 가져오기
+            linked_subject = SubjectGened.objects.filter(subject_gened_code__startswith=required_course.subject_gened_required_code[:6]).first()
+            liberal_required_courses.append({
+                "completion_status": completion_status,
+                "subject_gened_code": required_course.subject_gened_required_code,
+                "gen_category_name": linked_subject.gened_category.gened_category_name if linked_subject else None,
+                "subject_gened_name": linked_subject.subject_gened_name if linked_subject else None
+            })
+
+        # 응답 데이터 생성
+        response_data = {
+            "main_major": [
+                {
+                    "major_id": major_department.department_id,
+                    "department_name": major_department.department_name
+                }
+            ],
+            "double_major": [
+                {
+                    "double_or_minor_id": double_minor_department.department_id if double_minor_department else None,
+                    "department_name": double_minor_department.department_name if double_minor_department else None
+                }
+            ],
+            "main_major_required_courses": main_major_required_courses,
+            "double_or_minor_required_courses": double_minor_required_courses,
+            "liberal_required_courses": liberal_required_courses,
+        }
+
+        print(f"Response Data: {response_data}")
+        return Response(response_data, status=status.HTTP_200_OK)
+    
