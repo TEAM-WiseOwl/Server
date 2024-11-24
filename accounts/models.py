@@ -72,7 +72,7 @@ class Profile(models.Model):
     double_for_language = models.BooleanField(default=False)
     double_for_language_name = models.CharField(max_length=50, verbose_name='외국어 시험명', blank=True, null=True)
     double_for_language_score = models.PositiveBigIntegerField(verbose_name='외국어 시험점수', blank=True, null=True)
-
+    grad_required_completed = models.BooleanField(default=False)
     def __str__(self):
         return f"{self.user.email} - Profile"
     
