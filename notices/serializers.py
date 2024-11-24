@@ -61,34 +61,40 @@ class CourseCompleteSerializer(serializers.ModelSerializer):
     model=Profile
     fields=['major','profile_gubun', 'second_major', 'course' ]
   def get_major(self, obj):
+      print(obj.major_id)
       major = Department.objects.get(department_id=obj.major_id)
       return major.department_name
   def get_second_major(self, obj):
       double_major=Department.objects.get(department_id=obj.double_or_minor_id)
       return double_major.department_name
   def get_course(self, obj):
-        major_subjects = MajorSubjectCompleted.objects.filter(user=obj.user)
-        general_subjects = GeneralSubjectCompleted.objects.filter(user=obj.user)
-
+        # print(f"get_course called with: {obj}")
+        major_subjects = MajorSubjectCompleted.objects.filter(user=obj.user_id)
+        general_subjects = GeneralSubjectCompleted.objects.filter(user=obj.user_id)
+        print(major_subjects)
         # 결과를 그룹화할 dict 초기화
         courses_by_year = defaultdict(lambda: {
             'complete_year': None,
             'school_year': None,
             'course_subject': []
         })
-
         # MajorSubjectCompleted 모델을 complete_year, school_year로 묶어서 데이터 준비
         for major_subject in major_subjects:
-            key = (major_subject.completed_year, major_subject.school_year)
-            courses_by_year[key]['complete_year'] = major_subject.completed_year
-            courses_by_year[key]['school_year'] = major_subject.school_year
-            courses_by_year[key]['course_subject'].append({
-                'subject_name': major_subject.subject_department.subject_department_name,
-                'grade': major_subject.grade,
-                'retry_yn': major_subject.retry_yn,
-                'credit': major_subject.subject_department.credit
-            })
-
+            try:
+              key = (major_subject.completed_year, major_subject.school_year)
+              courses_by_year[key]['complete_year'] = major_subject.completed_year
+              courses_by_year[key]['school_year'] = major_subject.school_year
+              courses_by_year[key]['course_subject'].append({
+                    'subject_name': major_subject.subject_department.subject_department_name,
+                    'grade': major_subject.grade,
+                    'retry_yn': major_subject.retry_yn,
+                    'credit': major_subject.subject_department.subject_department_credit
+                })
+            except Exception as e:
+               print(f"Error processing major_subject {major_subject}: {e}")
+               raise 
+          
+        
         # GeneralSubjectCompleted 모델을 complete_year, school_year로 묶어서 데이터 준비
         for general_subject in general_subjects:
             key = (general_subject.completed_year, general_subject.school_year)
@@ -108,7 +114,8 @@ class CourseCompleteSerializer(serializers.ModelSerializer):
            if course_serializer.is_valid():
               serialized_courses.append(course_serializer.data)
            else:
-              print(course_serializer.errors)  # 유효하지 않은 데이터에 대한 오류 출력
+              print(course_serializer.errors)
+              print("오잉")  # 유효하지 않은 데이터에 대한 오류 출력
 
         return serialized_courses
 
