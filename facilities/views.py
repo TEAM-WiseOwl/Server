@@ -30,6 +30,7 @@ def main_view(request):
 
     dashboard_data = {
         "name" : profile.profile_name,
+        "gubun" : profile.profile_gubun,
         "major" : major_department.department_name,
         "double_major" : double_minor_department.department_name if double_minor_department else None,
         "major_credit_completed" : major_credit_completed,
