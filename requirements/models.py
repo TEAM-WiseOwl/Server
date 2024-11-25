@@ -50,12 +50,12 @@ class SubjectGenedRequired(models.Model):
     subject_gened_required_desc = models.CharField(verbose_name = "설명", max_length = 500 , null = True)
     subject_gened_required_instead = models.BooleanField(verbose_name="대체 가능 여부", default = False)
 
-    class Meta:
-        unique_together = ('subject_gened_required_code', 'department')  # Django 2.2 이전 버전에서 사용 가능
-        # Django 2.2 이상 버전에서는 아래와 같이 UniqueConstraint를 사용할 수도 있음
-        # constraints = [
-        #     models.UniqueConstraint(fields=['subject_gened_id', 'department_id'], name='subject_gened_id_department_id')
-        # ]
+    # class Meta:
+    #     unique_together = ('subject_gened_required_code', 'department')  # Django 2.2 이전 버전에서 사용 가능
+    #     # Django 2.2 이상 버전에서는 아래와 같이 UniqueConstraint를 사용할 수도 있음
+    #     # constraints = [
+    #     #     models.UniqueConstraint(fields=['subject_gened_id', 'department_id'], name='subject_gened_id_department_id')
+    #     # ]
 
 class SubjectDepartment(models.Model):
     subject_department_id=models.BigAutoField(verbose_name="전공과목 아이디", primary_key=True)
