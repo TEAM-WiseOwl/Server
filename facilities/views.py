@@ -73,9 +73,23 @@ def main_view(request):
                 "facility_category": "카페/식당",
                 "facility_list": FacilitySerializer(facilities.filter(facility_category='카페/식당'), many=True).data
             },
-            # 기타 카테고리 추가
+            {
+                "facility_category" : "편의점",
+                "facility_list" : FacilitySerializer(facilities.filter(facility_category = '편의점'), many = True).data
+            },
+            {
+                "facility_category" : "열람실",
+                "facility_list" : FacilitySerializer(facilities.filter(facility_category = '열람실'), many = True).data
+            },
+            {
+                "facility_category" : "컴퓨터/복사기",
+                "facility_list" : FacilitySerializer(facilities.filter(facility_category = '컴퓨터/복사기'), many = True).data
+            },
+            {
+                "facility_category" : "기타",
+                "facility_list" : FacilitySerializer(facilities.filter(facility_category = '기타'), many = True).data
+            }
         ]
-
         facilities_summary = {
             "total": total_facilities,
             "restaurant_cafe": category_counts["restaurant_cafe"],
@@ -90,9 +104,7 @@ def main_view(request):
             "building_name": building.building_name,
             "facilities_summary": facilities_summary
         }
-        print(building_data)
         building_list.append(building_data)
-    print(building_list)
 
 
     #구독 여부 조회
