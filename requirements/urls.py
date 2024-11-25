@@ -10,7 +10,7 @@ urlpatterns = [
     path('colleges/<int:subject_department_id>/department/subjects/add/', AddDepartmentSubAPIView.as_view()),
     path('colleges/<int:subject_gened_id>/gened/subjects/add/', AddGenSubAPIView.as_view()),
     path('i/', IRequirementsAPIView.as_view()),
-    path('graph/', GraduationGraphAPIView.as_view()),
+    path('graph/', GraduationProgressAPIView.as_view()),
     path('', RequirementAPIView.as_view()),
     path('required-subject/', RequirementSubjectAPIView.as_view()),
 ]
