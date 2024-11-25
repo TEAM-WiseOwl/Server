@@ -397,8 +397,14 @@ class RequirementAPIView(APIView):
             graduation_gubun_value = "이중전공"
 
         double_minor_requirements = Requirement.objects.filter(department=double_minor_department, graduation_gubun = graduation_gubun_value).first() if double_minor_department else None
-       
+        graduation_gubun_value = None
+        graduation_gubun = profile.profile_gubun
+        if graduation_gubun in ["전공심화+부전공", "부전공"]:
+            graduation_gubun_value = "부전공"
+        elif graduation_gubun == "이중전공":
+            graduation_gubun_value = "이중전공"
         result = {
+            "profile_gibun":{graduation_gubun_value},
             "main_major_conditions": {
                 "complete_requirment": [
                 {
