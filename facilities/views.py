@@ -8,6 +8,7 @@ from requirements.models import *
 from accounts.models import *
 from notices.models import *
 from django.db.models import Q
+from .models import *
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -21,6 +22,7 @@ def main_view(request):
 
     major_credit_completed = calculate_completed_credit_major(user, major_department)
     double_minor_credit_completed = calculate_completed_credit_double_minor(user, double_minor_department)
+
 
     major_credit_required = calculate_required_credits(profile,major_department, "major")
     double_credit_required = calculate_double_minor_credits(profile, major_department)
@@ -42,19 +44,26 @@ def main_view(request):
 
     }
 
+
     buildings = Builiding.objects.all().order_by('building_num')
     building_list = []
+
+
     for building in buildings:
         facilities = building.facility_set.all()
+        if not facilities.exists():
+            print(f"No facilities found for building: {building.building_name}")
+            continue  # 다음 건물로 이동
+
         total_facilities = facilities.count()
         category_counts = {
-            "restaurant_cafe" : facilities.filter(facility_category = '카페/식당').count(),
-            "convenience_store" : facilities.filter(facility_category = '편의점').count(),
-            "reading_room" : facilities.filter(facility_category = '열람실').count(),
-            "computer_copier" : facilities.filter(facility_category = '컴퓨터/복사기').count(),
-            "etc" : facilities.filter(facility_category = '기타').count(),
-
+            "restaurant_cafe": facilities.filter(facility_category='카페/식당').count(),
+            "convenience_store": facilities.filter(facility_category='편의점').count(),
+            "reading_room": facilities.filter(facility_category='열람실').count(),
+            "computer_copier": facilities.filter(facility_category='컴퓨터/복사기').count(),
+            "etc": facilities.filter(facility_category='기타').count(),
         }
+
         facility_set = FacilityCategorySerializer(
             [
                 {
@@ -84,6 +93,8 @@ def main_view(request):
 
             ],many = True
         ).data
+
+
         facilities_summary = {
             "total": total_facilities,
             "restaurant_cafe": category_counts["restaurant_cafe"],
@@ -99,6 +110,8 @@ def main_view(request):
             "facilities_summary": facilities_summary
         }
         building_list.append(building_data)
+
+
 
     #구독 여부 조회
     subscribe = Subscribe.objects.filter(user=user).first()
@@ -148,13 +161,17 @@ def calculate_completed_credit_major(user, major_department):
         subject_department__department = major_department)
     
     credit = sum(completed_subject.subject_department.subject_department_credit for completed_subject in completed_list)
+
     return credit
 ##이중(부)전공과목 이수 학점
 def calculate_completed_credit_double_minor(user, double_minor_department):
     completed_list = MajorSubjectCompleted.objects.filter(
         user = user, 
         subject_department__department = double_minor_department)
-    credit = sum(completed_subject.subject_gened.subject_gened_credit for completed_subject in completed_list)
+    
+    credit = sum(completed_subject.subject_department.
+    subject_department_credit for completed_subject in completed_list)
+
     return credit
 
 def calculate_required_credits(profile, department, type_):
