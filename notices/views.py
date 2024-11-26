@@ -368,35 +368,32 @@ class MyCourseEdit(APIView):
     complete_year = request.data.get("complete_year")
     school_year = request.data.get("school_year")
     subject_name = request.data.get("subject_name")
+    subject_code=request.data.get("subject_code")
     #major 테이블에서 찾음
-    subject_department = SubjectDepartment.objects.filter(subject_department_name=subject_name).first()
-    if subject_department:
-      major_subject = MajorSubjectCompleted.objects.filter(
-        # user=request.user,
-        user_id=user.user_id,
-        subject_department=subject_department,
-        completed_year=complete_year,
-        school_year=school_year
-        ).first()
-
-        # 과목이 존재하면 삭제
-      if major_subject:
-        major_subject.delete()
-        return Response({
+    
+    major_subject = MajorSubjectCompleted.objects.filter(
+       subject_department_id=subject_code,
+       user_id=user.user_id,
+       school_year=school_year,
+       completed_year=complete_year
+    )
+    
+    if major_subject:
+      major_subject.delete()
+      return Response({
                     "message": "Resource deleted successfully"
                 }, status=status.HTTP_204_NO_CONTENT)
     #교양 테이블
-    subject_gened = SubjectGened.objects.filter(subject_gened_name=subject_name).first()
-    if subject_gened:
-      general_subject = GeneralSubjectCompleted.objects.filter(
-                user_id=user.user_id,
-                subject_gened=subject_gened,
-                completed_year=complete_year,
-                school_year=school_year
-            ).first()
+    general_subject = GeneralSubjectCompleted.objects.filter(
+       subject_gened_id=subject_code,
+       user_id=user.user_id,
+       school_year=school_year,
+       completed_year=complete_year
+       ).first()
+    
 
-            # 과목이 존재하면 삭제
-      if general_subject:
+    # 과목이 존재하면 삭제
+    if general_subject:
                 general_subject.delete()
                 return Response({
                     "message": "Resource deleted successfully"
