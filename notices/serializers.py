@@ -47,6 +47,7 @@ class CourseSubjectSerializer(serializers.Serializer):
     grade = serializers.CharField()
     retry_yn = serializers.BooleanField()
     credit = serializers.IntegerField()
+    subject_code=serializers.IntegerField()
 
 class CourseYearSerializer(serializers.Serializer):
     complete_year = serializers.CharField()
@@ -61,7 +62,6 @@ class CourseCompleteSerializer(serializers.ModelSerializer):
     model=Profile
     fields=['major','profile_gubun', 'second_major', 'course' ]
   def get_major(self, obj):
-      print(obj.major_id)
       major = Department.objects.get(department_id=obj.major_id)
       return major.department_name
   def get_second_major(self, obj):
@@ -81,6 +81,7 @@ class CourseCompleteSerializer(serializers.ModelSerializer):
         # MajorSubjectCompleted 모델을 complete_year, school_year로 묶어서 데이터 준비
         for major_subject in major_subjects:
             try:
+              print(major_subject.subject_department_id)
               key = (major_subject.completed_year, major_subject.school_year)
               courses_by_year[key]['complete_year'] = major_subject.completed_year
               courses_by_year[key]['school_year'] = major_subject.school_year
@@ -88,7 +89,8 @@ class CourseCompleteSerializer(serializers.ModelSerializer):
                     'subject_name': major_subject.subject_department.subject_department_name,
                     'grade': major_subject.grade,
                     'retry_yn': major_subject.retry_yn,
-                    'credit': major_subject.subject_department.subject_department_credit
+                    'credit': major_subject.subject_department.subject_department_credit,
+                    'subject_code': major_subject.subject_department_id
                 })
             except Exception as e:
                print(f"Error processing major_subject {major_subject}: {e}")
@@ -104,7 +106,9 @@ class CourseCompleteSerializer(serializers.ModelSerializer):
                 'subject_name': general_subject.subject_gened.subject_gened_name,
                 'grade': general_subject.grade,
                 'retry_yn': general_subject.retry_yn,
-                'credit': general_subject.subject_gened.subject_gened_credit
+                'credit': general_subject.subject_gened.subject_gened_credit,
+                'subject_code': general_subject.subject_gened_id
+
             })
 
         # courses_by_year를 리스트로 반환

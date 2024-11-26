@@ -411,16 +411,21 @@ class MyCourseEdit(APIView):
     subject_name = request.data.get("subject_name")
     grade = request.data.get("grade")
     retry_yn = request.data.get("retry_yn")
+    subject_code=request.data.get("subject_code")
 
     #전공테이블 찾음
-    subject_department = SubjectDepartment.objects.filter(subject_department_name=subject_name).first()
+    subject_department = SubjectDepartment.objects.filter(
+       subject_department_id=subject_code,
+       opening_semester=school_year
+       ).first()
     if subject_department:
       major_subject = MajorSubjectCompleted.objects.filter(
       user_id=user.user_id,
-      subject_department=subject_department,
+      subject_department_id=subject_code,
       completed_year=complete_year,
       school_year=school_year
         ).first()
+      print(major_subject)
       if major_subject:
         major_subject.grade = grade
         major_subject.retry_yn = retry_yn
@@ -428,11 +433,12 @@ class MyCourseEdit(APIView):
         return Response({
                         "message": "Resource updated successfully"
                     }, status=status.HTTP_200_OK)
-    subject_gened = SubjectGened.objects.filter(subject_gened_name=subject_name).first()
+    subject_gened = SubjectGened.objects.filter(subject_gened_name=subject_name,
+    opening_semester=school_year).first()
     if subject_gened:
       general_subject = GeneralSubjectCompleted.objects.filter(
         user_id=user.user_id,
-        subject_gened=subject_gened,
+        subject_gened_id=subject_code,
         completed_year=complete_year,
         school_year=school_year
           ).first()
