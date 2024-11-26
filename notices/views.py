@@ -491,13 +491,16 @@ class RequireEdit(APIView):
 class OnlyMajor(APIView):
    def get(self, request):
     user = request.user
-    request_data = request.data.get('data', [])
-    profile=Profile.objects.get(user=user.user_id)
-    print(request_data)
-    if not request_data:
-       return Response({"error": "Invalid request data"})
+    unique_subjects = (
+          MajorSubjectCompleted.objects.filter(user_id=user.user_id)
+          .values("completed_year", "school_year")  # 필요한 필드만 추출
+          .distinct()  # 고유값으로 필터링
+      )
+
     result = {"course": []}
-    for entry in request_data:
+    profile=Profile.objects.get(user=user.user_id)
+
+    for entry in unique_subjects:
       completed_year = entry.get("completed_year")
       school_year = entry.get("school_year")
 
@@ -525,4 +528,4 @@ class OnlyMajor(APIView):
                     "course_subject": course_subjects,
                 }
             )
-      return Response(result, status=status.HTTP_200_OK)
+    return Response(result, status=status.HTTP_200_OK)
