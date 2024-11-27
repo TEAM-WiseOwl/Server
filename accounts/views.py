@@ -106,6 +106,11 @@ def google_callback(request):
         if social_user.provider != 'google':
             return JsonResponse({'err_msg': 'no matching social type'}, status=status.HTTP_400_BAD_REQUEST)
         
+        profile, created = Profile.objects.get_or_create(user=user)
+        if created:  # 새로 생성된 경우 기본값 설정
+            profile.profile_name = "No Name"  # 기본값
+            profile.profile_student_number = 0  # 기본 학번 값
+            profile.save()
         # 이미 로그인된 유저인 경우 JWT 토큰 발급
         access_token, refresh_token = create_jwt_token(user)  # JWT 토큰 생성 함수
 
@@ -127,7 +132,8 @@ def google_callback(request):
         # 신규 유저의 경우
         user = User.objects.create(email=email)
         social_user = SocialAccount.objects.create(user=user, provider='google', extra_data=email_req_json)
-        Profile.objects.create(user_id=user.user_id)
+        Profile.objects.create(user=user, profile_name="No Name", profile_student_number=0)
+        
         
         access_token, refresh_token = create_jwt_token(user)  # JWT 토큰 생성 함수
         response = JsonResponse({'message': 'User created and logged in'})
