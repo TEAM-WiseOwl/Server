@@ -472,23 +472,26 @@ class RequireEdit(APIView):
         except Profile.DoesNotExist:
             return Response({"detail": "Profile not found."}, status=status.HTTP_404_NOT_FOUND)
         data = request.data
+        print(data.get('grad_pro'))
         if profile_gubun == "본전공":
             profile.grad_research = data.get("grad_research", profile.grad_research) == "완료"
             profile.grad_exam = data.get("grad_exam", profile.grad_exam) == "완료"
             profile.grad_certificate = data.get("grad_certificate", profile.grad_certificate) == "완료"
-            profile.grad_pro = data.get("grad_certificate", profile.grad_pro) == "완료"
+            profile.grad_pro = data.get("grad_pro", profile.grad_pro) == "완료"
             profile.for_language = data.get("for_language", profile.for_language) == "완료"
             profile.for_language_name = data.get("for_language_name", profile.for_language_name)
             profile.for_language_score = data.get("for_language_score", profile.for_language_score)
+            profile.save()
             
         else:
-            profile.grad_research = data.get("grad_research", profile.double_grad_research) == "완료"
-            profile.grad_exam = data.get("grad_exam", profile.double_grad_exam) == "완료"
-            profile.grad_certificate = data.get("grad_certificate", profile.double_grad_certificate) == "완료"
-            profile.for_language = data.get("for_language", profile.double_for_language) == "완료"
-            profile.grad_pro = data.get("grad_certificate", profile.double_grad_pro) == "완료"
-            profile.for_language_name = data.get("for_language_name", profile.double_for_language_name)
-            profile.for_language_score = data.get("for_language_score", profile.double_for_language_score)
+            profile.double_grad_research = data.get("grad_research", profile.double_grad_research) == "완료"
+            profile.double_grad_exam = data.get("grad_exam", profile.double_grad_exam) == "완료"
+            profile.double_grad_certificate = data.get("grad_certificate", profile.double_grad_certificate) == "완료"
+            profile.double_for_language = data.get("for_language", profile.double_for_language) == "완료"
+            profile.double_grad_pro = data.get("grad_pro", profile.double_grad_pro) == "완료"
+            profile.double_for_language_name = data.get("for_language_name", profile.double_for_language_name)
+            profile.double_for_language_score = data.get("for_language_score", profile.double_for_language_score)
+            profile.save()
         profile.save()
         return Response({"detail": "Profile updated successfully."}, status=status.HTTP_200_OK)
 class OnlyMajor(APIView):
