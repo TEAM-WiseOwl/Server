@@ -127,7 +127,7 @@ def google_callback(request):
         # 신규 유저의 경우
         user = User.objects.create(email=email)
         social_user = SocialAccount.objects.create(user=user, provider='google', extra_data=email_req_json)
-        Profile.objects.create(user=user)
+        Profile.objects.create(user=user.user_id)
         
         access_token, refresh_token = create_jwt_token(user)  # JWT 토큰 생성 함수
         response = JsonResponse({'message': 'User created and logged in'})
