@@ -52,15 +52,15 @@ class InfoUserDetailAPIView(APIView):
         return Response(serializer.data)
 
 
-BASE_URL = 'http://ec2-43-201-90-146.ap-northeast-2.compute.amazonaws.com:8000/'
+#BASE_URL = 'http://ec2-43-201-90-146.ap-northeast-2.compute.amazonaws.com:8000/'
 #BASE_URL = 'http://127.0.0.1:8000/'
-GOOGLE_CALLBACK_URI = BASE_URL + 'api/accounts/google/callback/'
+GOOGLE_CALLBACK_URI = 'https://wiseowlone.vercel.app/googleLogin'
 
 def google_login(request):
-    scope = "https://www.googleapis.com/auth/userinfo.email"
+    scope = "openid%20profile%20email"
     client_id = getattr(settings, "GOOGLE_CLIENT_ID")
     return redirect(f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=code&redirect_uri={GOOGLE_CALLBACK_URI}&scope={scope}")
-#
+
 def google_callback(request):
     state = 'random'
     client_id = getattr(settings, "GOOGLE_CLIENT_ID")
