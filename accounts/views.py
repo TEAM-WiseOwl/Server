@@ -245,7 +245,7 @@ class ProfileCreateAPIView(APIView):
                 return Response({"error": f"Double/Minor fields are required for {profile_gubun}."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Profile 생성
-        profile = Profile.objects.update_or_create(
+        profile = Profile.objects.update(
             user=user,
             profile_name=data['profile_name'],
             profile_student_number=data['profile_student_number'],
@@ -267,6 +267,8 @@ class ProfileCreateAPIView(APIView):
             subscribe.subscribe_double = True
 
         # 상태 저장
+        
+        profile.save()
         subscribe.save()
 
         return Response({"message": "Profile and subscription created successfully."}, status=status.HTTP_201_CREATED)
