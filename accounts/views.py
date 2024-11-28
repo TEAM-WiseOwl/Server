@@ -112,19 +112,20 @@ def google_callback(request):
         # 이미 로그인된 유저인 경우 JWT 토큰 발급
         access_token, refresh_token = create_jwt_token(user)  # JWT 토큰 생성 함수
         user = request.user
-        profile = Profile.objects.get_or_create(
+        profile_created = False
+        Profile.objects.create(
             user=user,
-            defaults={
-                'profile_name': "No Name",  # 기본값
-                'profile_student_number': 0  # 기본 학번 값
-            }
+            profile_name="No Name",  # 직접 필드에 값을 전달
+            profile_student_number=0
         )
-        print(profile)
+        profile_created = created 
+        print(f"[DEBUG] Profile created: {created}, Profile: {profile}")
 
         response = JsonResponse({
             'message': 'Login successful',
             'access_token':access_token,
-            'refresh_token':refresh_token
+            'refresh_token':refresh_token,
+            'profile_created': profile_created
         })
 
         response["Authorization"] = f'Bearer {access_token}'
@@ -137,16 +138,14 @@ def google_callback(request):
         user = User.objects.create(email=email)
         social_user = SocialAccount.objects.create(user=user, provider='google', extra_data=email_req_json)
         user = request.user
-        user_profile = Profile.objects.create(
+        profile, created = Profile.objects.get_or_create(
             user=user,
-            defaults={
-                'profile_name': "No Name",  # 기본값
-                'profile_student_number': 0  # 기본 학번 값
-            }
+            profile_name="No Name",  # 직접 필드에 값을 전달
+            profile_student_number=0
         )
-        print(user_profile)
+        print(created)
         access_token, refresh_token = create_jwt_token(user)  # JWT 토큰 생성 함수
-        response = JsonResponse({'message': 'User created and logged in'})
+        response = JsonResponse({'message': 'User created and logged in','profile_created': profile_created})
         response['Authorization'] = f'Bearer {access_token}'
         response['Refresh-Token'] = refresh_token
         return response
