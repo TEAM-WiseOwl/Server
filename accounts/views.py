@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.utils import timezone
 import requests
 from django.shortcuts import redirect
@@ -215,6 +216,7 @@ class ProfileCreateAPIView(APIView):
     def post(self, request):
         data = request.data
         user = request.user
+        print(user)
 
         try:
             major_college = College.objects.get(college_id=data['major_college_id'])
@@ -244,17 +246,22 @@ class ProfileCreateAPIView(APIView):
             else:
                 return Response({"error": f"Double/Minor fields are required for {profile_gubun}."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Profile 생성
-        profile = Profile.objects.update(
-            user=user,
-            profile_name=data['profile_name'],
-            profile_student_number=data['profile_student_number'],
-            major_college=major_college,
-            major=major,
-            double_or_minor_college=double_or_minor_college,
-            double_or_minor=double_or_minor,
-            profile_gubun=profile_gubun,
-        )
+        # Profile 생성 또는 업데이트
+        try:
+            profile, created = Profile.objects.update_or_create(
+                user=user,
+                defaults={
+                    "profile_name": data['profile_name'],
+                    "profile_student_number": data['profile_student_number'],
+                    "major_college": major_college,
+                    "major": major,
+                    "double_or_minor_college": double_or_minor_college,
+                    "double_or_minor": double_or_minor,
+                    "profile_gubun": profile_gubun,
+                }
+            )
+        except IntegrityError as e:
+            return Response({"error": f"Database integrity error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Subscribe 업데이트
         subscribe, created = Subscribe.objects.get_or_create(user=user)
@@ -267,8 +274,6 @@ class ProfileCreateAPIView(APIView):
             subscribe.subscribe_double = True
 
         # 상태 저장
-        
-        profile.save()
         subscribe.save()
 
         return Response({"message": "Profile and subscription created successfully."}, status=status.HTTP_201_CREATED)
