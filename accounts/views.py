@@ -189,7 +189,8 @@ class AgreeMentAPIView(APIView):
     def post(self, request):
         user = request.user  # 현재 로그인된 사용자
         print(f"[DEBUG] User ID: {user.user_id}")
-
+        if not user.is_authenticated:
+            return Response({"message": "User not authenticated."}, status=status.HTTP_401_UNAUTHORIZED)
         profile_agreement = request.data.get("profile_agreement", None)
 
         if profile_agreement is None:
