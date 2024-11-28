@@ -204,15 +204,6 @@ class AgreeMentAPIView(APIView):
         )
         if profile_agreement is None:
             return Response({"message": "profile_agreement field is required."}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            profile = Profile.objects.get(user=user)
-            print(profile)
-        except Profile.DoesNotExist:
-            return Response({
-                    "message": "Profile not found for the user.",
-                    "user_id": getattr(user, "user_id", None),  # user_id 확인
-                    "email": getattr(user, "email", "Unknown"),  # 이메일 정보 추가
-                }, status=status.HTTP_404_NOT_FOUND)
 
         if created:
             print(f"[DEBUG] New profile created for user {user.user_id}")
