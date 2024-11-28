@@ -189,8 +189,17 @@ class AgreeMentAPIView(APIView):
     def post(self, request):
         user = request.user  # 현재 로그인된 사용자
         print(f"[DEBUG] User ID: {user.user_id}")
-        if not user.is_authenticated:
-            return Response({"message": "User not authenticated."}, status=status.HTTP_401_UNAUTHORIZED)
+        jwt_authenticator = JWTAuthentication()
+        try:
+            token = request.headers.get("Authorization").split()[1]
+            validated_token = jwt_authenticator.get_validated_token(token)
+            user = jwt_authenticator.get_user(validated_token)
+            print("[DEBUG] Validated Token:", validated_token)
+            print("[DEBUG] User from Token:", user)
+        except Exception as e:
+            print("[DEBUG] Token Validation Error:", str(e))
+            return Response({"message": "Invalid token."}, status=status.HTTP_401_UNAUTHORIZED)
+
         profile_agreement = request.data.get("profile_agreement", None)
 
         if profile_agreement is None:
