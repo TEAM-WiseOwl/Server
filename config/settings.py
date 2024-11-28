@@ -218,7 +218,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 86400
 
 # https에서만 세션 쿠키가 전송 (default false) https 배포 시 true로
-SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = True
 
 ACCOUNT_EMAIL_REQUIRED = True            # email 필드 사용 o
 ACCOUNT_USERNAME_REQUIRED = False         # username 필드 사용 o
