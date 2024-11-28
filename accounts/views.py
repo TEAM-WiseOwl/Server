@@ -110,8 +110,7 @@ def google_callback(request):
         user.save()  
         
         # 이미 로그인된 유저인 경우 JWT 토큰 발급
-        access_token, refresh_token = create_jwt_token(user)  # JWT 토큰 생성 함수
-        user = request.user
+        access_token, refresh_token = create_jwt_token(user)
         profile_created = False
         Profile.objects.create(
             user=user,
@@ -137,7 +136,6 @@ def google_callback(request):
         # 신규 유저의 경우
         user = User.objects.create(email=email)
         social_user = SocialAccount.objects.create(user=user, provider='google', extra_data=email_req_json)
-        user = request.user
         profile, created = Profile.objects.get_or_create(
             user=user,
             profile_name="No Name",  # 직접 필드에 값을 전달
