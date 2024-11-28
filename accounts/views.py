@@ -189,17 +189,6 @@ class AgreeMentAPIView(APIView):
     def post(self, request):
         user = request.user  # 현재 로그인된 사용자
         print(f"[DEBUG] User ID: {user.user_id}")
-        jwt_authenticator = JWTAuthentication()
-        try:
-            token = request.headers.get("Authorization").split()[1]
-            validated_token = jwt_authenticator.get_validated_token(token)
-            user = jwt_authenticator.get_user(validated_token)
-            print("[DEBUG] Validated Token:", validated_token)
-            print("[DEBUG] User from Token:", user)
-        except Exception as e:
-            print("[DEBUG] Token Validation Error:", str(e))
-            return Response({"message": "Invalid token."}, status=status.HTTP_401_UNAUTHORIZED)
-
         profile_agreement = request.data.get("profile_agreement", None)
 
         if profile_agreement is None:
@@ -217,8 +206,13 @@ class AgreeMentAPIView(APIView):
             return Response({"message": "profile_agreement field is required."}, status=status.HTTP_400_BAD_REQUEST)
         try:
             profile = Profile.objects.get(user=user)
+            print(profile)
         except Profile.DoesNotExist:
-            return Response({"message": "Profile not found for the user."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({
+                    "message": "Profile not found for the user.",
+                    "user_id": getattr(user, "user_id", None),  # user_id 확인
+                    "email": getattr(user, "email", "Unknown"),  # 이메일 정보 추가
+                }, status=status.HTTP_404_NOT_FOUND)
 
         if created:
             print(f"[DEBUG] New profile created for user {user.user_id}")
