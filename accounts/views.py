@@ -136,6 +136,7 @@ def google_callback(request):
         # 신규 유저의 경우
         user = User.objects.create(email=email)
         social_user = SocialAccount.objects.create(user=user, provider='google', extra_data=email_req_json)
+        user = User.objects.get(email=email)
         profile, created = Profile.objects.get_or_create(
             user=user,
             profile_name="No Name",  # 직접 필드에 값을 전달
@@ -186,10 +187,22 @@ class TokenRefreshAPIView(APIView):
     
 class AgreeMentAPIView(APIView):
     def post(self, request):
-        user = request.user.user_id
-        print(user)
+        user = request.user  # 현재 로그인된 사용자
+        print(f"[DEBUG] User ID: {user.user_id}")
+
         profile_agreement = request.data.get("profile_agreement", None)
 
+        if profile_agreement is None:
+            return Response({"message": "profile_agreement field is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 프로필 가져오거나 없으면 생성
+        profile, created = Profile.objects.get_or_create(
+            user=user,
+            defaults={
+                'profile_name': "No Name",  # 기본값
+                'profile_student_number': 0,  # 기본 학번 값
+            }
+        )
         if profile_agreement is None:
             return Response({"message": "profile_agreement field is required."}, status=status.HTTP_400_BAD_REQUEST)
         try:
@@ -197,10 +210,20 @@ class AgreeMentAPIView(APIView):
         except Profile.DoesNotExist:
             return Response({"message": "Profile not found for the user."}, status=status.HTTP_404_NOT_FOUND)
 
+        if created:
+            print(f"[DEBUG] New profile created for user {user.user_id}")
+        else:
+            print(f"[DEBUG] Existing profile found for user {user.user_id}")
+
+        # 프로필 업데이트
         profile.profile_agreement = profile_agreement
         profile.save()
 
-        return Response({"message": "Profile agreement updated successfully."}, status=status.HTTP_200_OK)
+        return Response({
+            "message": "Profile agreement updated successfully.",
+            "profile_created": created  # 프로필 생성 여부 반환
+        }, status=status.HTTP_200_OK)
+
 
 class ProfileCreateAPIView(APIView):
     def post(self, request):
