@@ -78,8 +78,23 @@ def crawl_notices_foreign(url):
      page = query_params.get('page', [''])[0]
      command = query_params.get('command', [''])[0]
      board_seq = query_params.get('boardSeq', [''])[0]
-     new_url=f"&dum=dum&boardId={board_id}&page={page}&command={command}&boardSeq={board_seq}"
-     result.append({'title': title, 'url':url+new_url, 'date': date})
+     if url=='https://builder.hufs.ac.kr/user/indexSub.action?framePath=unknownboard&siteId=ds&dum=dum&boardId=147894605&page=1&command=list':
+      new_query_params = {
+          "framePath": "unknownboard",
+          "siteId": "ds",
+          "dum": "dum",
+          "boardId": board_id,
+          "page": page,
+          "command": "view",  # 항상 'view'로 설정
+          "boardSeq": board_seq
+      }
+      new_query = urlencode(new_query_params)
+      base_url = "https://builder.hufs.ac.kr/user/indexSub.action"
+      full_url = f"{base_url}?{new_query}"
+      result.append({'title': title, 'url':full_url, 'date': date})
+     else:
+        new_url=f"&dum=dum&boardId={board_id}&page={page}&command={command}&boardSeq={board_seq}"
+        result.append({'title': title, 'url':url+new_url, 'date': date})
   
   
   # print(result)
@@ -172,7 +187,11 @@ def crawl_notices_department(department_id):
      title=list.find("td", attrs={"class":"td-subject"}).get_text().strip()
      new_url=list.find('a').get('href')
      date=list.find("td", attrs={"class":"td-date"}).get_text().strip()
-     base_url="https://english.hufs.ac.kr/"
+    #  base_url="https://english.hufs.ac.kr/"
+     match = re.match(r'(https://[^/]+/)', url)
+     base_url = match.group(1) if match else None  
+    #  print(base_url)
+    
      result.append({'title': title, 'url':base_url+new_url, 'date': date})
   
   

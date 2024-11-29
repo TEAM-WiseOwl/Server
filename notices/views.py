@@ -50,6 +50,7 @@ class NoticeAlarm(APIView):
 class NoticePage(APIView):
   def get(self, request):
     user = request.user
+    profile=Profile.objects.filter(user_id=user.user_id).first()
     response_data = None
     try:
       subscribe_instance = Subscribe.objects.get(user_id=user.user_id)
@@ -110,17 +111,28 @@ class NoticePage(APIView):
                 )
 
       organ_notices[major_department_name] = crawl_notices_department(department_id=profile_instance.major_id)  # 크롤링된 공지사항
+    #   print(organ_notices[major_department_name])
+    # print(profile.double_or_minor.department_id)
     if subscribe_data["double"]:
-      organ_notices[double_major_department_name] = crawl_notices_department(department_id=profile_instance.double_or_minor_id)  
-      crawled_data=crawl_notices_department(department_id=profile_instance.double_or_minor_id)
+      if profile.double_or_minor.department_id == 53:
+         organ_notices[double_major_department_name] = crawl_notices_foreign(url='https://builder.hufs.ac.kr/user/indexSub.action?framePath=unknownboard&siteId=ds&dum=dum&boardId=147894605&page=1&command=list')
+         crawled_data=crawl_notices_foreign(url='https://builder.hufs.ac.kr/user/indexSub.action?framePath=unknownboard&siteId=ds&dum=dum&boardId=147894605&page=1&command=list')
+      else:
+         organ_notices[double_major_department_name] = crawl_notices_department(department_id=profile_instance.double_or_minor_id)  
+         crawled_data=crawl_notices_department(department_id=profile_instance.double_or_minor_id)
+      # print(organ_notices[double_major_department_name])
+      print("오잉") 
       for post in crawled_data:
         title = post['title']
         link = post['url']
         published_date = post['date']
         try:
-          published_date = datetime.strptime(published_date, "%Y.%m.%d").date()
+           published_date = datetime.strptime(published_date, "%Y.%m.%d").date()
         except ValueError:
-          published_date = None
+           try:
+              published_date = datetime.strptime(published_date, "%Y-%m-%d").date()
+           except ValueError:
+              published_date = None
         if not Notice.objects.filter(notice_link=link).exists():
                 Notice.objects.create(
                     notice_title=title,
@@ -132,7 +144,7 @@ class NoticePage(APIView):
 
 
                 )
-
+    print("오잉2") 
     if subscribe_data["ai"]:
       organ_name = "AI교육원" 
       organ_notices[organ_name] = crawl_notices()
@@ -141,10 +153,14 @@ class NoticePage(APIView):
         title = post['title']
         link = post['url']
         published_date = post['date']
+        print("야")
         try:
-          published_date = datetime.strptime(published_date, "%Y-%m-%d").date()
+           published_date = datetime.strptime(published_date, "%Y.%m.%d").date()
         except ValueError:
-          published_date = None
+           try:
+              published_date = datetime.strptime(published_date, "%Y-%m-%d").date()
+           except ValueError:
+              published_date = None
         if not Notice.objects.filter(notice_link=link, user_id=user.user_id).exists():
                 Notice.objects.create(
                     notice_title=title,
@@ -156,6 +172,7 @@ class NoticePage(APIView):
 
 
                 )
+    # print(organ_notices["AI교육원"])
     if subscribe_data["foreign"]:
       organ_name = "국제교류원" 
       organ_notices[organ_name] = crawl_notices_foreign(url="https://builder.hufs.ac.kr/user/indexSub.action?codyMenuSeq=135456840&siteId=oia3&menuType=T&uId=8&sortChar=A&menuFrame=left&linkUrl=7_1.html&mainFrame=right") 
@@ -250,6 +267,7 @@ class NoticePage(APIView):
                 )
     if subscribe_data["foreign_edu"]:
       organ_name = "외국어교육센터"  
+      print("오잉") 
       organ_notices[organ_name] = crawl_notices_foreign(url='https://builder.hufs.ac.kr/user/indexSub.action?framePath=unknownboard&siteId=flec2&dum=dum&boardId=98772159&page=1&command=list')
       crawled_data=crawl_notices_foreign(url='https://builder.hufs.ac.kr/user/indexSub.action?framePath=unknownboard&siteId=flec2&dum=dum&boardId=98772159&page=1&command=list')
       for post in crawled_data:
