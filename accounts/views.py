@@ -293,3 +293,46 @@ class RequestStuNumAPIView(APIView):
             serializer.save(user=request.user)
             return Response({"message": "Request completed. After adding the relevant department's student number, we will notify you that it has been completed through a notification and email."}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class LogOutAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            # 클라이언트로부터 Refresh Token 가져오기
+            refresh_token = request.data.get("refresh_token")
+            if not refresh_token:
+                return Response({"error": "Refresh token is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Refresh Token 블랙리스트 처리
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response({"message": "Successfully logged out"}, status=status.HTTP_205_RESET_CONTENT)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class WithDrawAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user  # 현재 로그인된 사용자
+        
+        try:
+            # 소셜 계정 삭제 (allauth)
+            social_account = SocialAccount.objects.filter(user=user)
+            if social_account.exists():
+                social_account.delete()
+
+            # 프로필 삭제
+            if hasattr(user, 'profile'):
+                user.profile.delete()
+
+            # 사용자 데이터 삭제
+            user.delete()
+
+            return Response({"message": "Account deleted successfully from our application."}, status=status.HTTP_204_NO_CONTENT)
+
+        except Exception as e:
+            return Response({"error": f"Failed to delete account: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

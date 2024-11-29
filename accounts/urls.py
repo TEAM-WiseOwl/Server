@@ -12,4 +12,6 @@ urlpatterns = [
     path('agree/', AgreeMentAPIView.as_view()),    
     path('department-info/', ProfileCreateAPIView.as_view()),
     path('request/student-number/', RequestStuNumAPIView.as_view()),
+    path('logout/', LogOutAPIView.as_view()),
+    path('withdraw-membership/', WithDrawAPIView.as_view()),
 ]
