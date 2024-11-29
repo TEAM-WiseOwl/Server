@@ -355,7 +355,13 @@ class GraduationProgressAPIView(APIView):
             double_minor_required = result["required_credits"]["double_minor_major_graduation_credits"]
             if double_minor_major_credits > double_minor_required:
                 result["completed_credits"]["elective_credits"] += double_minor_major_credits - double_minor_required
-
+        other_major_queryset = MajorSubjectCompleted.objects.exclude(
+            subject_department__department__in=[profile.major, profile.double_or_minor]
+        ).filter(user=user)
+        other_major_credits = sum(
+            record.subject_department.subject_department_credit for record in other_major_queryset
+        )
+        result["completed_credits"]["elective_credits"] += other_major_credits
         if result["required_credits"]["main_major_graduation_credits"]:
             result["main_major_completion_rate"] = round(
                 (main_major_credits / result["required_credits"]["main_major_graduation_credits"]) * 100, 1
