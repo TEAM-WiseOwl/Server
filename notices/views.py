@@ -36,6 +36,16 @@ class NoticeAlarm(APIView):
             
             serialized_data.append(notice_data)
      return Response({"notice": serialized_data}, status=200)
+  def patch(self, request):
+     user=request.user
+     notices = Notice.objects.filter(user_id=user.user_id,
+                                     notice_link=request.data.get("notice_link")).first()
+     
+     print(request.data.get("notice_read"))
+     notices.notice_read=request.data.get("notice_read")
+     notices.save()
+     print(notices.notice_read)
+     return Response({"detail": "Subscribe record updated."}, status=200)
 
 class NoticePage(APIView):
   def get(self, request):
