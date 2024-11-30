@@ -338,6 +338,28 @@ class Mypage(APIView):
     user = request.user
     profile = Profile.objects.get(user_id=user.user_id)
     serializer = MypageSerializer(profile)
+    grades_queryset = MajorSubjectCompleted.objects.filter(user=user).union(
+            GeneralSubjectCompleted.objects.filter(user=user)
+        )
+    total_credits = 0
+    total_points = 0
+
+    for record in grades_queryset:
+        grade = record.grade
+        credits = (
+            record.subject_department.subject_department_credit
+            if hasattr(record, "subject_department")
+            else record.subject_gened.subject_gened_credit
+        )
+        if grade == "P":
+            continue
+
+        grade_points = {"A+": 4.5, "A0": 4.0, "B+": 3.5, "B0": 3.0, "C+": 2.5, "C0": 2.0}.get(grade, 0)
+        total_points += grade_points * credits
+        total_credits += credits
+
+    profile.profile_grade = round(total_points / total_credits, 2) if total_credits > 0 else 0
+    profile.save()
     return Response(serializer.data)
 
 class MyinfoEdit(APIView):
