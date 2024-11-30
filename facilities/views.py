@@ -113,37 +113,16 @@ def main_view(request):
 
 
 
-    #구독 여부 조회
-    subscribe = Subscribe.objects.filter(user=user).first()
+    # 공지사항 조회: user_id 기준으로 날짜순 정렬 후 최근 3개만 가져오기
+    notices = Notice.objects.filter(user_id=user).order_by('-notice_date')[:3]
 
-    if subscribe:
+    # 공지사항이 없을 경우 빈 리스트로 처리
+    if not notices:
+        notices = []
 
-        notice_filter = Q()
+    # 공지사항 시리얼라이저 생성
+    notice_serializer = NoticeSerializer(notices, many=True)
 
-        if subscribe.subscribe_major:
-            notice_filter |= Q(department=major_department)
-        if subscribe.subscribe_double and double_minor_department:
-            notice_filter |= Q(department = double_minor_department)
-        
-        organ_mapping = {
-            'subscribe_ai': 'AI 교육원',
-            'subscribe_foreign': '국제교류팀',
-            'subscribe_cfl': '진로취업지원센터',
-            'subscribe_special_foreign': '특수외국어교육진흥원',
-            'subscribe_flex': 'FLEX 센터',
-            'subscribe_foreign_edu': '외국어교육센터'
-        }
-
-        subscribe_organs = [organ_name for field, organ_name in organ_mapping.items() if getattr(subscribe, field)]
-        if subscribe_organs:
-            organs = Organ.objects.filter(organ_name__in = subscribe_organs)
-            notice_filter |= Q(notice_organ__in=organs)
-        
-        notices = Notice.objects.filter(notice_filter).order_by('-notice_date')[:3]
-
-        notice_serializer = NoticeSerializer(notices, many=True)
-    else:
-        notice_serializer = NoticeSerializer([], many=True)
 
     response_data = {
         "dashboard" : dashboard_data,
