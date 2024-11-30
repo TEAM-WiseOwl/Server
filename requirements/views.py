@@ -467,36 +467,93 @@ class RequirementSubjectAPIView(APIView):
         except Profile.DoesNotExist:
             return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # 사용자 정보 가져오기
+        # 사용자 전공, 이중(부) 전공
         major_department = profile.major
         double_minor_department = profile.double_or_minor
 
-        # Helper 함수: 이수 여부 확인
+        # Helper 함수: 전공 과목 이수 여부 확인
         def is_course_completed(required_code, user_courses, exception_table, course_type="major"):
+            print(f"Checking Required Code: {required_code}")
+
+            # 유효성 검증
+            if not required_code:
+                print("Error: required_code is None or invalid.")
+                return False
+
+            if not user_courses:
+                print("Warning: user_courses is empty.")
+                return False
+
+            if not exception_table.exists():
+                print("Warning: exception_table is empty.")
+                return False
+
+            # 사용자 이수 과목 코드 추출
             if course_type == "major":
-                if required_code[:6] in {course.subject_department.subject_department_code[:6] for course in user_courses}:
+                try:
+                    user_course_codes = {course.subject_department.subject_department_code[:6] for course in user_courses}
+                except AttributeError as e:
+                    print(f"AttributeError in User Courses: {e}")
+                    return False
+            else:
+                user_course_codes = set()
+
+            print(f"User Course Codes: {user_course_codes}")
+
+            # 기본 이수 여부 확인
+            if required_code[:6] in user_course_codes:
+                return True
+
+            # 예외 테이블 확인
+            exceptions = exception_table.filter(subject_department_required_code__startswith=required_code[:6])
+            print(f"Exceptions Found for Required Code {required_code}: {exceptions}")
+
+            for exception in exceptions:
+                print(f"Checking Exception: {exception}")
+                if exception.code_match and exception.comparison_code[:6] in user_course_codes:
                     return True
-            elif course_type == "gened":
-                if required_code[:6] in {course.subject_gened.subject_gened_code[:6] for course in user_courses}:
+                if exception.name_match and exception.comparison_name in user_course_codes:
+                    return True
+                if not exception.code_match and not exception.name_match and exception.comparison_code[:6] in user_course_codes:
                     return True
 
-            exceptions = exception_table.filter(comparison_code=required_code)
-            for exception in exceptions:
-                if exception.code_match:
-                    if course_type == "major":
-                        if any(exception.comparison_code[:6] == course.subject_department.subject_department_code[:6] for course in user_courses):
-                            return True
-                    elif course_type == "gened":
-                        if any(exception.comparison_code[:6] == course.subject_gened.subject_gened_code[:6] for course in user_courses):
-                            return True
-                elif exception.name_match:
-                    if course_type == "major":
-                        if any(exception.comparison_name == course.subject_department.subject_department_name for course in user_courses):
-                            return True
-                    elif course_type == "gened":
-                        if any(exception.comparison_name == course.subject_gened.subject_gened_name for course in user_courses):
-                            return True
             return False
+
+        # Helper 함수: 교양 과목 이수 여부 확인
+        def is_gened_course_completed(required_code, user_gened_courses, exception_table):
+            print(f"Checking Gened Required Code: {required_code}")
+
+            if not required_code:
+                print("Error: required_code is None or invalid.")
+                return False
+
+            if not user_gened_courses:
+                print("Warning: user_gened_courses is empty.")
+                return False
+
+            user_gened_course_codes = {course.subject_gened.subject_gened_code[:6] for course in user_gened_courses}
+            print(f"User Gened Course Codes: {user_gened_course_codes}")
+
+            # 기본 이수 여부 확인
+            if required_code[:6] in user_gened_course_codes:
+                return True
+
+            # 예외 테이블 확인
+            exceptions = exception_table.filter(subject_gened_required_code=required_code)
+            print(f"Exceptions Found for Gened Required Code {required_code}: {exceptions}")
+
+            for exception in exceptions:
+                if exception.comparison_code[:6] in user_gened_course_codes:
+                    print(f"Match Found: User Course Code {exception.comparison_code} corresponds to Required Code {required_code}")
+                    return True
+
+            return False
+
+
+
+
+
+        
 
         # 사용자 주전공 과목 가져오기
         user_major_courses = MajorSubjectCompleted.objects.filter(
@@ -510,6 +567,20 @@ class RequirementSubjectAPIView(APIView):
             subject_department__department=double_minor_department
         )
 
+        # 사용자 주전공과 복수전공/부전공이 아닌 전공 과목 가져오기(ex. 데사)
+        other_major_courses = MajorSubjectCompleted.objects.filter(
+            user=user
+        ).exclude(
+            subject_department__department=major_department
+        ).exclude(
+            subject_department__department=double_minor_department
+        )
+        # 디버깅: 필터링된 타 전공 과목 확인
+        print(f"Other Major Courses Count: {other_major_courses.count()}")
+        for course in other_major_courses:
+            print(f"Course Code: {course.subject_department.subject_department_code}, Course Name: {course.subject_department.subject_department_name}")
+
+
         # 교양 과목 가져오기
         user_gened_courses = GeneralSubjectCompleted.objects.filter(user=user)
 
@@ -522,17 +593,27 @@ class RequirementSubjectAPIView(APIView):
         )
 
         for required_course in required_courses:
+            if not required_course.subject_department_required_code:
+                print(f"Invalid required_course: {required_course}")
+                continue  # 필수 과목 코드가 없으면 스킵
+
+            user_courses = list(user_major_courses) + list(other_major_courses)
+
             completion_status = is_course_completed(
-                required_course.subject_department_required_code,
-                user_major_courses,
-                ExceptionDepartmentSubject.objects.filter(department=major_department),
+                required_code=required_course.subject_department_required_code,
+                user_courses=user_courses,
+                exception_table=ExceptionDepartmentSubject.objects.filter(department=major_department),
                 course_type="major"
             )
+
             main_major_required_courses.append({
                 "completion_status": completion_status,
                 "subject_department_name": required_course.subject_department_required_name,
                 "subject_department_code": required_course.subject_department_required_code
             })
+
+
+
 
         # 복수전공/부전공 필수 과목
         double_minor_required_courses = []
@@ -543,18 +624,33 @@ class RequirementSubjectAPIView(APIView):
                 Q(subject_department_required_1=True) | Q(subject_department_required_2=True) | Q(subject_department_required_1=False, subject_department_required_2=False)
             )
 
-            for required_course in required_courses:
-                completion_status = is_course_completed(
-                    required_course.subject_department_required_code,
-                    user_double_minor_courses,
-                    ExceptionDepartmentSubject.objects.filter(department=double_minor_department),
-                    course_type="major"
-                )
-                double_minor_required_courses.append({
-                    "completion_status": completion_status,
-                    "subject_department_name": required_course.subject_department_required_name,
-                    "subject_department_code": required_course.subject_department_required_code
-                })
+        for required_course in required_courses:
+            if not required_course.subject_department_required_code:
+                print(f"Invalid required_course: {required_course}")
+                continue  # 필수 과목 코드가 없으면 스킵
+
+            user_courses = list(user_double_minor_courses) + list(other_major_courses) + list(user_major_courses)
+
+            completion_status = is_course_completed(
+                required_code=required_course.subject_department_required_code,
+                user_courses=user_courses,
+                exception_table=ExceptionDepartmentSubject.objects.filter(department=double_minor_department),
+                course_type="major"
+            )
+
+            double_minor_required_courses.append({
+                "completion_status": completion_status,
+                "subject_department_name": required_course.subject_department_required_name,
+                "subject_department_code": required_course.subject_department_required_code
+            })
+
+
+        print(f"Final Double Minor Required Courses: {double_minor_required_courses}")
+
+
+
+        
+      
 
         # 교양 필수 과목
         liberal_required_courses = []
@@ -574,6 +670,10 @@ class RequirementSubjectAPIView(APIView):
 
             print(f"Processing Liberal Required Course: {required_course}")
 
+            # 예외 테이블 확인
+            exceptions = ExceptionGenedSubject.objects.filter(department=major_department)
+            print(f"Exceptions for Department {major_department.department_name}: {exceptions}")
+
             # 신입생세미나 처리: 과목 코드 앞 5자리로 비교
             is_seminar_course = False
             if required_course.subject_gened_required_code[:5] == "Y1111":  # 신입생세미나의 과목 코드 패턴 확인
@@ -584,11 +684,10 @@ class RequirementSubjectAPIView(APIView):
                 completion_status = is_seminar_course  # 5자리 비교 결과를 이수 여부로 사용
             else:
                 # 일반 교양 과목 처리
-                completion_status = is_course_completed(
-                    required_course.subject_gened_required_code,
-                    user_gened_courses,
-                    ExceptionGenedSubject.objects.filter(department=major_department),
-                    course_type="gened"
+                completion_status = is_gened_course_completed(
+                    required_code=required_course.subject_gened_required_code,
+                    user_gened_courses=user_gened_courses,
+                    exception_table=exceptions
                 )
 
             # 교양 과목 정보 가져오기
@@ -607,6 +706,8 @@ class RequirementSubjectAPIView(APIView):
                 "gen_category_name": gen_category_name,
                 "subject_gened_name": subject_gened_name
             })
+
+        
         graduation_gubun_value = None
         graduation_gubun = profile.profile_gubun
         if graduation_gubun in ["전공심화+부전공", "부전공"]:
