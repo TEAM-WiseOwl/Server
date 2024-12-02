@@ -60,7 +60,7 @@ GOOGLE_CALLBACK_URI = 'https://wiseowlone.vercel.app/googleLogin'
 def google_login(request):
     scope = "openid%20profile%20email"
     client_id = getattr(settings, "GOOGLE_CLIENT_ID")
-    return redirect(f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=code&redirect_uri={GOOGLE_CALLBACK_URI}&scope={scope}")
+    return redirect(f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&redirect_uri={GOOGLE_CALLBACK_URI}&response_type=code&scope={scope}")
 
 def google_callback(request):
     state = 'random'
