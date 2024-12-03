@@ -134,7 +134,7 @@ def google_callback(request):
         social_user = SocialAccount.objects.create(user=user, provider='google', extra_data=email_req_json)
         Profile.objects.create(user=user)
        
-        origin_user = Profile.objects.filter(user=user, profile_agreement__isnull=False)
+        origin_user = Profile.objects.filter(user=user)
         access_token, refresh_token = create_jwt_token(user)
         
         
