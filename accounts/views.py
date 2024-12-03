@@ -332,6 +332,14 @@ class WithDrawAPIView(APIView):
             # 사용자 데이터 삭제
             user.delete()
 
+            refresh_token = request.data.get("refresh_token")
+            if not refresh_token:
+                return Response({"error": "Refresh token is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Refresh Token 블랙리스트 처리
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
             return Response({"message": "Account deleted successfully from our application."}, status=status.HTTP_204_NO_CONTENT)
 
         except Exception as e:
