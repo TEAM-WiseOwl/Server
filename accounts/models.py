@@ -54,7 +54,7 @@ class Profile(models.Model):
     profile_name = models.CharField(max_length=20, null= True, blank= True)
     profile_student_number = models.PositiveIntegerField(verbose_name='학번', null= True, blank= True)
     profile_gubun = models.CharField(max_length=20, verbose_name="이중전공, 부전공, 전공심화, 전공심화+부전공", null= True, blank= True)
-    profile_agreement = models.BooleanField(default=False)
+    profile_agreement = models.BooleanField(null=True, default=None)
     profile_img = models.ImageField(upload_to="profiles/%Y/%m/%d/", blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     profile_grade = models.FloatField(default=0)
