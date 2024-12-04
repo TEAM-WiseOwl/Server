@@ -184,16 +184,18 @@ def crawl_notices_department(department_id):
   # print(lists[0].find('a').get('href'))
   result=[]
   for list in lists:
-     title=list.find("td", attrs={"class":"td-subject"}).get_text().strip()
+     title=list.find("td", attrs={"class":"td-subject"}).get_text(strip=True)
+     title = re.sub(r'\s+', ' ', title)
      new_url=list.find('a').get('href')
-     date=list.find("td", attrs={"class":"td-date"}).get_text().strip()
+     print(new_url)
+     date=list.find("td", attrs={"class":"td-date"}).get_text(strip=True)
     #  base_url="https://english.hufs.ac.kr/"
      match = re.match(r'(https://[^/]+/)', url)
      base_url = match.group(1) if match else None  
-    #  print(base_url)
+     print(base_url+new_url)
     
      result.append({'title': title, 'url':base_url+new_url, 'date': date})
   
   
-  # print(result)
+  print(result)
   return result
