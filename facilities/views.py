@@ -146,7 +146,7 @@ def main_view(request):
         if grade == "P":
             continue
 
-        grade_points = {"A+": 4.5, "A0": 4.0, "B+": 3.5, "B0": 3.0, "C+": 2.5, "C0": 2.0}.get(grade, 0)
+        grade_points = {"A+": 4.5, "A": 4.0, "B+": 3.5, "B": 3.0, "C+": 2.5, "C": 2.0, "D+": 1.5, "D":1.0, "F": 0.0}.get(grade, 0)
         total_points += grade_points * credits
         total_credits += credits
 
