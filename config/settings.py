@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 import local_settings 
 from datetime import timedelta
+from celery.schedules import crontab
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -14,7 +15,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = local_settings.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
+
+
 
 ALLOWED_HOSTS = ['*']
 
@@ -133,7 +136,7 @@ TIME_ZONE = "Asia/Seoul"
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -163,6 +166,7 @@ APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"  # Default
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework.permissions.AllowAny', 
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 
@@ -216,11 +220,12 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 86400
 
 # https에서만 세션 쿠키가 전송 (default false) https 배포 시 true로
-SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = True
 
 ACCOUNT_EMAIL_REQUIRED = True            # email 필드 사용 o
-ACCOUNT_USERNAME_REQUIRED = True         # username 필드 사용 o
+ACCOUNT_USERNAME_REQUIRED = False         # username 필드 사용 o
 ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 
 GOOGLE_CLIENT_ID = local_settings.GOOGLE_CLIENT_ID
 GOOGLE_SECRET = local_settings.GOOGLE_SECRET
@@ -257,3 +262,14 @@ CORS_ALLOW_METHODS = (
 
 APPEND_SLASH = False
 CORS_PREFLIGHT_MAX_AGE = 86400
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Redis URL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
+CELERY_BEAT_SCHEDULE = {
+    'crawl-posts-every-30-minutes': {
+        'task': 'notices.crawler.crawl_notices',
+        'schedule': crontab(minute='*/30'),  # 30분마다 크롤링
+    },
+}

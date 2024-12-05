@@ -14,7 +14,7 @@ class Product(models.Model):
     facility = models.ForeignKey(Facility, verbose_name = '편의시설 아이디', on_delete = models.CASCADE)
     product_name = models.CharField(verbose_name = '상품명', max_length = 30)
     product_price = models.PositiveIntegerField(verbose_name = '상품 가격')
-    product_img = models.ImageField(upload_to = "products")
+    product_img = models.CharField(verbose_name = '상품이미지', max_length = 700)
 
 class Cart(models.Model):
     cart_id = models.BigAutoField(verbose_name = '장바구니 아이디', primary_key = True)
